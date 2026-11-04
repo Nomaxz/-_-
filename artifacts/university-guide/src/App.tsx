@@ -36,6 +36,7 @@ import {
 import {
   examOptions,
   getCountryLivingCost,
+  getUniversityReputation,
   getTuitionSummary,
   getUniversityInsight,
   priceOptions,
@@ -78,6 +79,9 @@ const messages = {
     tuitionTitle: 'Стоимость обучения',
     tuitionUnavailableShort: 'Уточните стоимость на сайте вуза',
     livingUnavailableShort: 'Нет оценки для этой страны',
+    qsRankingLabel: 'QS 2027',
+    studentReviewsLabel: 'Отзывы Studyportals',
+    reviewCountSuffix: 'отзывов',
     livingTitle: 'Проживание без жилья',
     livingExcludingHousingNote: 'Примерная сумма на месяц, без оплаты жилья; обучение считается отдельно.',
     sourcesTitle: 'Официальные источники',
@@ -163,6 +167,9 @@ const messages = {
     tuitionTitle: 'Tuition',
     tuitionUnavailableShort: 'Confirm tuition on the university website',
     livingUnavailableShort: 'No estimate available for this country',
+    qsRankingLabel: 'QS 2027',
+    studentReviewsLabel: 'Studyportals reviews',
+    reviewCountSuffix: 'reviews',
     livingTitle: 'Living expenses excluding housing',
     livingExcludingHousingNote: 'Approximate monthly expenses, excluding housing; tuition is separate.',
     sourcesTitle: 'Official sources',
@@ -416,6 +423,7 @@ function UniversityCard({ university }: { university: University }) {
   const insight = getUniversityInsight(university);
   const tuitionSummary = getTuitionSummary(university, language);
   const livingCost = getCountryLivingCost(university.countryCode, language);
+  const reputation = getUniversityReputation(university);
 
   return (
     <article className="uni-card" data-testid={`card-university-${university.id}`}>
@@ -428,6 +436,14 @@ function UniversityCard({ university }: { university: University }) {
           <div className="card-highlights">
             {tuitionSummary && <div className="card-highlight-item"><strong>{t.tuitionTitle}</strong><span>{tuitionSummary}</span></div>}
             {livingCost && <div className="card-highlight-item"><strong>{t.livingTitle}</strong><span>{livingCost}</span><small>{t.livingExcludingHousingNote}</small></div>}
+          </div>
+        )}
+        {reputation && (
+          <div className="card-reputation">
+            <span><strong>{t.qsRankingLabel}</strong> #{reputation.qs2027Rank}</span>
+            <a href={reputation.sourceUrl} target="_blank" rel="noreferrer">
+              {t.studentReviewsLabel}: {reputation.studentReviewRating.toFixed(1)}/5 · {formatNumber(reputation.reviewCount, language)} {t.reviewCountSuffix}
+            </a>
           </div>
         )}
         {insight && <span className={`data-badge ${insight.approximate ? 'approximate' : 'verified'}`}>{insight.approximate ? t.dataEstimate : t.dataVerified}</span>}

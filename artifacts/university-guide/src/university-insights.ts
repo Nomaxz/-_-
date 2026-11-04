@@ -16,6 +16,30 @@ type Insight = {
   sources: { label: string; url: string }[];
 };
 
+export type UniversityReputation = {
+  qs2027Rank: number;
+  studentReviewRating: number;
+  reviewCount: number;
+  sourceUrl: string;
+};
+
+const universityReputationByName: Record<string, UniversityReputation> = {
+  'Technische Universität München': { qs2027Rank: 25, studentReviewRating: 4.0, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/41/technical-university-of-munich.html' },
+  'Ludwig-Maximilians-Universität München': { qs2027Rank: 61, studentReviewRating: 4.1, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/218/ludwig-maximilians-university-munich.html' },
+  'University of Bologna': { qs2027Rank: 123, studentReviewRating: 4.2, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/606/university-of-bologna.html' },
+  'University of Roma "La Sapienza"': { qs2027Rank: 111, studentReviewRating: 4.2, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/642/sapienza-university-of-rome.html' },
+  'University of Toronto': { qs2027Rank: 32, studentReviewRating: 4.1, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/11734/university-of-toronto.html' },
+  'University of British Columbia': { qs2027Rank: 45, studentReviewRating: 4.2, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/11804/university-of-british-columbia.html' },
+  'Harvard University': { qs2027Rank: 5, studentReviewRating: 4.1, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/11731/harvard-university.html' },
+  'Massachusetts Institute of Technology': { qs2027Rank: 1, studentReviewRating: 4.3, reviewCount: 59, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/11740/massachusetts-institute-of-technology.html' },
+  'University of Oslo': { qs2027Rank: 131, studentReviewRating: 4.4, reviewCount: 34, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/13/university-of-oslo.html' },
+  'Norwegian University of Science and Technology': { qs2027Rank: 264, studentReviewRating: 4.3, reviewCount: 39, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/14/norwegian-university-of-science-and-technology.html' },
+};
+
+export function getUniversityReputation(university: University) {
+  return universityReputationByName[university.name] ?? null;
+}
+
 const countryProfiles: Record<string, Insight> = {
   DE: {
     tuition: {
