@@ -33,12 +33,20 @@ import {
   type Language,
   type TestResult,
 } from './test-content';
+import {
+  examOptions,
+  getCountryLivingCost,
+  getTuitionSummary,
+  getUniversityInsight,
+  priceOptions,
+  type ExamFilter,
+} from './university-insights';
 
 const queryClient = new QueryClient();
 
 const messages = {
   ru: {
-    brand: 'путь',
+    brand: 'Campass',
     navUniversities: 'Вузы',
     navCountries: 'Страны',
     navTests: 'Тест интересов',
@@ -57,11 +65,27 @@ const messages = {
     priceMinLabel: 'Стоимость от',
     priceMaxLabel: 'Стоимость до',
     pricePlaceholder: 'Введите сумму',
-    priceSourceNote: 'В прикреплённом файле нет данных о стоимости. Фильтр будет сравнивать цену только у вузов с указанной стоимостью.',
+    priceSourceNote: 'Выберите примерный годовой диапазон в эквиваленте USD. Для пяти стран он основан на официальных данных отдельных вузов и страновых ориентирах.',
+    examFilterLabel: 'Уровень экзаменов',
+    anyExam: 'Любой уровень',
+    anyPrice: 'Любой бюджет',
+    dataAccuracyLabel: 'Достоверность данных',
+    allDataAccuracy: 'Все сведения',
+    verifiedOnly: 'Проверенные',
+    approximateOnly: 'Приблизительные',
+    dataEstimate: 'Приблизительно',
+    dataVerified: 'Проверено по вузу',
+    tuitionTitle: 'Стоимость обучения',
+    tuitionUnavailableShort: 'Уточните стоимость на сайте вуза',
+    livingUnavailableShort: 'Нет оценки для этой страны',
+    livingTitle: 'Проживание без жилья',
+    livingExcludingHousingNote: 'Примерная сумма на месяц, без оплаты жилья; обучение считается отдельно.',
+    sourcesTitle: 'Официальные источники',
+    genericInfo: 'Нет проверенных сведений для этой страны. Используйте официальный сайт университета и уточните условия программы.',
     reset: 'Сбросить фильтры',
     countSuffix: 'вузов в каталоге',
     sourceLabel: 'Источник данных · прикреплённый каталог',
-    priceUnavailable: 'В исходном файле нет цен. Сбросьте ценовой фильтр или добавьте данные о стоимости.',
+    priceUnavailable: 'По выбранному диапазону нет вузов с доступными оценками.',
     emptyHeading: 'Университеты не найдены',
     emptyText: 'Измените поиск или параметры фильтра.',
     showAll: 'Показать все университеты',
@@ -83,10 +107,9 @@ const messages = {
     missingSourceInfo: 'В прикреплённом файле эти сведения не указаны. Проверьте информацию на официальном сайте университета.',
     directoryDetails: 'Данные из каталога',
     officialWebsite: 'Официальный сайт',
-    domains: 'Домены',
     openWebsite: 'Открыть сайт',
     noWebsite: 'Сайт в источнике не указан',
-    admissionDisclaimer: 'Источник не содержит стоимость обучения, программы или требования для поступления. Эти данные нужно уточнить у университета.',
+    admissionDisclaimer: 'Стоимость и требования могут меняться по программе, гражданству и учебному году. Перед подачей проверьте официальный источник.',
     notFound: 'Университет не найден',
     testEyebrow: 'Самопознание · 3 минуты',
     testTitle: 'Выберите направление',
@@ -108,7 +131,7 @@ const messages = {
     testNotFoundLink: 'Перейти к каталогу',
   },
   en: {
-    brand: 'path',
+    brand: 'Campass',
     navUniversities: 'Universities',
     navCountries: 'Countries',
     navTests: 'Interest test',
@@ -127,11 +150,27 @@ const messages = {
     priceMinLabel: 'Tuition from',
     priceMaxLabel: 'Tuition up to',
     pricePlaceholder: 'Enter an amount',
-    priceSourceNote: 'The attached file has no tuition data. Price filters can only compare universities with a listed tuition amount.',
+    priceSourceNote: 'Choose an approximate annual range in USD equivalent. For five countries, this uses official university figures and country-level guides.',
+    examFilterLabel: 'Exam level',
+    anyExam: 'Any exam level',
+    anyPrice: 'Any budget',
+    dataAccuracyLabel: 'Data accuracy',
+    allDataAccuracy: 'All information',
+    verifiedOnly: 'Verified',
+    approximateOnly: 'Approximate',
+    dataEstimate: 'Approximate',
+    dataVerified: 'University source',
+    tuitionTitle: 'Tuition',
+    tuitionUnavailableShort: 'Confirm tuition on the university website',
+    livingUnavailableShort: 'No estimate available for this country',
+    livingTitle: 'Living expenses excluding housing',
+    livingExcludingHousingNote: 'Approximate monthly expenses, excluding housing; tuition is separate.',
+    sourcesTitle: 'Official sources',
+    genericInfo: 'No verified information is available for this country. Use the university’s official website and confirm program-specific requirements.',
     reset: 'Reset filters',
     countSuffix: 'universities in directory',
     sourceLabel: 'Data source · attached directory',
-    priceUnavailable: 'The source file has no prices. Clear the price filter or add tuition data.',
+    priceUnavailable: 'No universities with available estimates match this range.',
     emptyHeading: 'No universities found',
     emptyText: 'Change your search or filter settings.',
     showAll: 'Show all universities',
@@ -153,10 +192,9 @@ const messages = {
     missingSourceInfo: 'This information is not included in the attached file. Check the university website.',
     directoryDetails: 'Directory information',
     officialWebsite: 'Official website',
-    domains: 'Domains',
     openWebsite: 'Open website',
     noWebsite: 'No website listed in source',
-    admissionDisclaimer: 'The source does not include tuition, programs, or admissions requirements. Confirm these details with the university.',
+    admissionDisclaimer: 'Tuition and requirements vary by program, citizenship, and academic year. Confirm them on the official source before applying.',
     notFound: 'University not found',
     testEyebrow: 'Self-reflection · 3 minutes',
     testTitle: 'Explore a direction',
@@ -240,19 +278,17 @@ function CatalogPage() {
   const t = messages[language];
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState(queryCountry);
-  const [minTuition, setMinTuition] = useState('');
-  const [maxTuition, setMaxTuition] = useState('');
+  const [examFilter, setExamFilter] = useState<ExamFilter>('');
+  const [priceBand, setPriceBand] = useState('');
+  const [dataAccuracy, setDataAccuracy] = useState<'' | 'verified' | 'approximate'>('');
   const [visibleLimit, setVisibleLimit] = useState(24);
-  const hasPriceFilter = minTuition !== '' || maxTuition !== '';
-  const hasTuitionData = universities.some((university) => university.tuition !== null);
+  const hasPriceFilter = priceBand !== '';
 
   useEffect(() => setCountry(queryCountry), [queryCountry]);
-  useEffect(() => setVisibleLimit(24), [search, country, minTuition, maxTuition]);
+  useEffect(() => setVisibleLimit(24), [search, country, examFilter, priceBand, dataAccuracy]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLocaleLowerCase(language === 'ru' ? 'ru-RU' : 'en-US');
-    const lower = minTuition === '' ? null : Number(minTuition);
-    const upper = maxTuition === '' ? null : Number(maxTuition);
     return universities.filter((university) => {
       const searchText = [
         university.name,
@@ -262,20 +298,26 @@ function CatalogPage() {
       ].join(' ').toLocaleLowerCase(language === 'ru' ? 'ru-RU' : 'en-US');
       const matchesSearch = !query || searchText.includes(query);
       const matchesCountry = !country || university.country === country;
-      const matchesTuition =
-        !hasPriceFilter ||
-        (university.tuition !== null &&
-          (lower === null || university.tuition >= lower) &&
-          (upper === null || university.tuition <= upper));
-      return matchesSearch && matchesCountry && matchesTuition;
+      const insight = getUniversityInsight(university);
+      const matchesTuition = !hasPriceFilter || insight?.priceBand === priceBand;
+      const matchesExam = !examFilter || Boolean(insight?.exams.includes(examFilter));
+      const matchesAccuracy =
+        !dataAccuracy ||
+        Boolean(insight && (dataAccuracy === 'approximate' ? insight.approximate : !insight.approximate));
+      return matchesSearch && matchesCountry && matchesTuition && matchesExam && matchesAccuracy;
+    }).sort((a, b) => {
+      const aInsight = getUniversityInsight(a);
+      const bInsight = getUniversityInsight(b);
+      return Number(Boolean(bInsight && !bInsight.approximate)) - Number(Boolean(aInsight && !aInsight.approximate));
     });
-  }, [search, country, minTuition, maxTuition, hasPriceFilter, language]);
+  }, [search, country, examFilter, priceBand, dataAccuracy, hasPriceFilter, language]);
 
   const resetFilters = () => {
     setSearch('');
     setCountry('');
-    setMinTuition('');
-    setMaxTuition('');
+    setExamFilter('');
+    setPriceBand('');
+    setDataAccuracy('');
   };
 
   return (
@@ -292,16 +334,18 @@ function CatalogPage() {
       <div className="filter-panel" aria-label={t.catalogTitle}>
         <div className="field search-wrap">
           <label htmlFor="university-search">{t.searchLabel}</label>
-          <Search size={16} aria-hidden="true" />
-          <input
-            id="university-search"
-            className="control"
-            type="search"
-            placeholder={t.searchPlaceholder}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            data-testid="input-search"
-          />
+          <div className="search-input-wrap">
+            <Search size={16} aria-hidden="true" />
+            <input
+              id="university-search"
+              className="control"
+              type="search"
+              placeholder={t.searchPlaceholder}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              data-testid="input-search"
+            />
+          </div>
         </div>
         <div className="field">
           <label htmlFor="country-filter">{t.countryLabel}</label>
@@ -311,12 +355,26 @@ function CatalogPage() {
           </select>
         </div>
         <div className="field">
-          <label htmlFor="tuition-min">{t.priceMinLabel}</label>
-          <input id="tuition-min" className="control" type="number" min="0" step="1" inputMode="decimal" placeholder={t.pricePlaceholder} value={minTuition} onChange={(event) => setMinTuition(event.target.value)} data-testid="input-tuition-min" />
+          <label htmlFor="exam-filter">{t.examFilterLabel}</label>
+          <select id="exam-filter" className="control" value={examFilter} onChange={(event) => setExamFilter(event.target.value as ExamFilter)} data-testid="select-exam-level">
+            <option value="">{t.anyExam}</option>
+            {examOptions.map((option) => <option key={option.value} value={option.value}>{option.label[language]}</option>)}
+          </select>
         </div>
         <div className="field">
-          <label htmlFor="tuition-max">{t.priceMaxLabel}</label>
-          <input id="tuition-max" className="control" type="number" min="0" step="1" inputMode="decimal" placeholder={t.pricePlaceholder} value={maxTuition} onChange={(event) => setMaxTuition(event.target.value)} data-testid="input-tuition-max" />
+          <label htmlFor="price-band">{language === 'ru' ? 'Ценовой диапазон за год' : 'Annual tuition range'}</label>
+          <select id="price-band" className="control" value={priceBand} onChange={(event) => setPriceBand(event.target.value)} data-testid="select-price-band">
+            <option value="">{t.anyPrice}</option>
+            {priceOptions.map((option) => <option key={option.value} value={option.value}>{option.label[language]}</option>)}
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="data-accuracy">{t.dataAccuracyLabel}</label>
+          <select id="data-accuracy" className="control" value={dataAccuracy} onChange={(event) => setDataAccuracy(event.target.value as typeof dataAccuracy)} data-testid="select-data-accuracy">
+            <option value="">{t.allDataAccuracy}</option>
+            <option value="verified">{t.verifiedOnly}</option>
+            <option value="approximate">{t.approximateOnly}</option>
+          </select>
         </div>
         <button type="button" className="button secondary" onClick={resetFilters} data-testid="button-reset-filters">{t.reset}</button>
         <p className="filter-note">{t.priceSourceNote}</p>
@@ -328,7 +386,7 @@ function CatalogPage() {
       {filtered.length ? (
         <>
           <div className="university-list" data-testid="list-universities">
-            {filtered.slice(0, visibleLimit).map((university) => <UniversityCard key={university.id} university={university} />)}
+            {filtered.slice(0, visibleLimit).map((university) => <UniversityCard key={university.id} university={university} showCostSummary={Boolean(search.trim())} />)}
           </div>
           {filtered.length > visibleLimit && (
             <div className="load-more-wrap">
@@ -341,8 +399,8 @@ function CatalogPage() {
         </>
       ) : (
         <div className="empty-state" data-testid="empty-universities">
-          <h2>{hasPriceFilter && !hasTuitionData ? t.priceUnavailable : t.emptyHeading}</h2>
-          <p>{hasPriceFilter && !hasTuitionData ? t.priceSourceNote : t.emptyText}</p>
+          <h2>{hasPriceFilter ? t.priceUnavailable : t.emptyHeading}</h2>
+          <p>{hasPriceFilter ? t.priceSourceNote : t.emptyText}</p>
           <button className="button secondary" type="button" onClick={resetFilters} data-testid="button-empty-reset">{t.showAll}</button>
         </div>
       )}
@@ -351,19 +409,26 @@ function CatalogPage() {
   );
 }
 
-function UniversityCard({ university }: { university: University }) {
+function UniversityCard({ university, showCostSummary }: { university: University; showCostSummary: boolean }) {
   const { language } = useLanguage();
   const t = messages[language];
   const website = websiteFor(university);
+  const insight = getUniversityInsight(university);
 
   return (
     <article className="uni-card" data-testid={`card-university-${university.id}`}>
       <div>
-        <h2><Link href={`/university/${university.id}`}>{university.name}</Link></h2>
+        <h2><Link href="/" aria-label={language === 'ru' ? `${university.name}: на главную` : `${university.name}: home`}>{university.name}</Link></h2>
         <div className="uni-loc">
           {university.region ? `${university.region}, ` : ''}{getCountryName(university, language)}
         </div>
-        {university.domains.length > 0 && <p>{university.domains.join(' · ')}</p>}
+        {showCostSummary && (
+          <div className="card-highlights">
+            <div className="card-highlight-item"><strong>{t.tuitionTitle}</strong><span>{getTuitionSummary(university, language) ?? t.tuitionUnavailableShort}</span></div>
+            <div className="card-highlight-item"><strong>{t.livingTitle}</strong><span>{getCountryLivingCost(university.countryCode, language) ?? t.livingUnavailableShort}</span><small>{t.livingExcludingHousingNote}</small></div>
+          </div>
+        )}
+        {insight && <span className={`data-badge ${insight.approximate ? 'approximate' : 'verified'}`}>{insight.approximate ? t.dataEstimate : t.dataVerified}</span>}
         <Link href={`/university/${university.id}`} className="detail-link" data-testid={`link-details-${university.id}`}>{t.viewDetails}</Link>
       </div>
       <div className="uni-aside">
@@ -405,6 +470,7 @@ function CountriesPage() {
             <article className="country-card" key={country.id} data-testid={`card-country-${country.id}`}>
               <h2>{getCountryName(country, language)}</h2>
               <div className="country-count">{t.countryCountLabel}: {formatNumber(country.universityCount, language)}</div>
+          {getCountryLivingCost(country.countryCode, language) && <p className="country-living"><strong>{t.livingTitle}:</strong> {getCountryLivingCost(country.countryCode, language)} <span>{t.livingExcludingHousingNote}</span></p>}
               <Link href={`/?country=${encodeURIComponent(country.name)}`} className="button secondary" data-testid={`link-country-catalog-${country.id}`}>
                 {t.countryLink} <ArrowRight size={14} style={{ display: 'inline', verticalAlign: 'middle', marginLeft: 4 }} />
               </Link>
@@ -427,29 +493,32 @@ function UniversityPage() {
     return <div className="page"><div className="empty-state"><h1>{t.notFound}</h1><Link href="/" className="button" data-testid="link-back-catalog">{t.testNotFoundLink}</Link></div></div>;
   }
   const website = websiteFor(university);
+  const insight = getUniversityInsight(university);
 
   return (
     <div className="page">
       <Link href="/" className="nav-link" data-testid="link-back"><ArrowLeft size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5 }} />{t.backCatalog}</Link>
       <header className="detail-head" style={{ marginTop: 20 }}>
         <div className="eyebrow">{getCountryName(university, language)}{university.region ? ` · ${university.region}` : ''}</div>
-        <h1 className="page-title">{university.name}</h1>
+        <h1 className="page-title"><Link href="/" className="home-title-link">{university.name}</Link></h1>
+        {insight && <span className={`data-badge ${insight.approximate ? 'approximate' : 'verified'}`}>{insight.approximate ? t.dataEstimate : t.dataVerified}</span>}
       </header>
       <div className="detail-columns">
         <div>
-          <section className="detail-section"><h2>{t.requirementsTitle}</h2><p>{t.missingSourceInfo}</p></section>
-          <section className="detail-section"><h2>{t.benefitsTitle}</h2><p>{t.missingSourceInfo}</p></section>
-          <section className="detail-section"><h2>{t.additionalTitle}</h2><p>{t.admissionDisclaimer}</p></section>
+          <section className="detail-section"><h2>{t.tuitionTitle}</h2><p>{insight?.tuition[language] ?? t.genericInfo}</p></section>
+          <section className="detail-section"><h2>{t.requirementsTitle}</h2><p>{insight?.admission[language] ?? t.genericInfo}</p></section>
+          <section className="detail-section"><h2>{t.benefitsTitle}</h2><p>{insight?.funding[language] ?? t.genericInfo}</p></section>
+          <section className="detail-section"><h2>{t.livingTitle}</h2><p>{getCountryLivingCost(university.countryCode, language) ?? t.genericInfo}</p><p className="muted-note">{t.livingExcludingHousingNote}</p></section>
+          {insight?.sources.length ? <section className="detail-section"><h2>{t.sourcesTitle}</h2><ul>{insight.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></section> : null}
+          <div className="disclaimer">{t.admissionDisclaimer}</div>
         </div>
         <aside>
           <div className="info-box">
             <h2>{t.directoryDetails}</h2>
             <div className="info-row"><span>{t.countryLabel}</span><strong>{getCountryName(university, language)}</strong></div>
             {university.region && <div className="info-row"><span>{t.regionLabel}</span><strong>{university.region}</strong></div>}
-            <div className="info-row"><span>{t.domains}</span><strong>{university.domains.join(', ') || t.noWebsite}</strong></div>
             <div className="info-row"><span>{t.officialWebsite}</span><strong>{website ? <a href={website} target="_blank" rel="noreferrer">{t.openWebsite}</a> : t.noWebsite}</strong></div>
           </div>
-          <div className="disclaimer">{t.admissionDisclaimer}</div>
         </aside>
       </div>
     </div>
@@ -533,7 +602,7 @@ function TestPage() {
                 {recommendations.map((university) => (
                   <div className="recommendation-item" key={university.id} data-testid={`recommendation-${university.id}`}>
                     <div>
-                      <Link href={`/university/${university.id}`} className="recommendation-name">{university.name}</Link>
+                      <Link href="/" className="recommendation-name">{university.name}</Link>
                       <div className="uni-loc">{getCountryName(university, language)}</div>
                     </div>
                     {websiteFor(university) && <a href={websiteFor(university)!} target="_blank" rel="noreferrer" aria-label={`${t.openWebsite}: ${university.name}`}><ArrowUpRight size={18} /></a>}

@@ -54,6 +54,86 @@ export const questions: TestQuestion[] = [
       { label: { ru: 'Найти новый способ выразить идею', en: 'Find a new way to express an idea' }, areaScores: { creative: 2, people: 1 } },
     ],
   },
+  {
+    id: 'subject',
+    prompt: { ru: 'Какой предмет вы бы выбрали для углублённого изучения', en: 'Which subject would you choose to study in depth' },
+    options: [
+      { label: { ru: 'Математика и информатика', en: 'Math and computer science' }, areaScores: { technology: 2, science: 1 } },
+      { label: { ru: 'Биология и физика', en: 'Biology and physics' }, areaScores: { science: 2, technology: 1 } },
+      { label: { ru: 'История и общество', en: 'History and society' }, areaScores: { people: 2, communication: 1 } },
+      { label: { ru: 'Литература и языки', en: 'Literature and languages' }, areaScores: { communication: 2, creative: 1 } },
+    ],
+  },
+  {
+    id: 'first-step',
+    prompt: { ru: 'С какой задачей вы бы начали новый проект', en: 'Which task would you start with in a new project' },
+    options: [
+      { label: { ru: 'Настроить инструменты и систему', en: 'Set up the tools and system' }, areaScores: { technology: 2, business: 1 } },
+      { label: { ru: 'Собрать данные и проверить факты', en: 'Gather data and check the facts' }, areaScores: { science: 2, technology: 1 } },
+      { label: { ru: 'Узнать, что нужно людям', en: 'Find out what people need' }, areaScores: { people: 2, communication: 1 } },
+      { label: { ru: 'Продумать, как представить идею', en: 'Plan how to present the idea' }, areaScores: { creative: 2, communication: 1 } },
+    ],
+  },
+  {
+    id: 'success',
+    prompt: { ru: 'Что для вас будет признаком успешной работы', en: 'What would make you feel a project succeeded' },
+    options: [
+      { label: { ru: 'Решение работает без сбоев', en: 'The solution works reliably' }, areaScores: { technology: 2, science: 1 } },
+      { label: { ru: 'Вывод подтверждён доказательствами', en: 'The conclusion is supported by evidence' }, areaScores: { science: 2, business: 1 } },
+      { label: { ru: 'Кому-то стало легче или лучше', en: 'Someone’s situation improved' }, areaScores: { people: 2, communication: 1 } },
+      { label: { ru: 'Идею поняли и запомнили', en: 'People understood and remembered the idea' }, areaScores: { communication: 2, creative: 1 } },
+    ],
+  },
+  {
+    id: 'decision',
+    prompt: { ru: 'На что вы опираетесь, принимая решение', en: 'What do you rely on when making a decision' },
+    options: [
+      { label: { ru: 'На измерения и факты', en: 'Measurements and facts' }, areaScores: { science: 2, technology: 1 } },
+      { label: { ru: 'На потребности людей', en: 'People’s needs' }, areaScores: { people: 2, communication: 1 } },
+      { label: { ru: 'На сроки и доступные ресурсы', en: 'Time and available resources' }, areaScores: { business: 2, technology: 1 } },
+      { label: { ru: 'На оригинальность и впечатление', en: 'Originality and impact' }, areaScores: { creative: 2, communication: 1 } },
+    ],
+  },
+  {
+    id: 'free-time',
+    prompt: { ru: 'Какое занятие вам обычно интереснее', en: 'Which activity do you usually find most interesting' },
+    options: [
+      { label: { ru: 'Собрать или улучшить что-то', en: 'Build or improve something' }, areaScores: { technology: 2, creative: 1 } },
+      { label: { ru: 'Узнать, как устроено явление', en: 'Learn how a phenomenon works' }, areaScores: { science: 2, people: 1 } },
+      { label: { ru: 'Обсудить идеи и помочь советом', en: 'Discuss ideas and offer advice' }, areaScores: { people: 2, communication: 1 } },
+      { label: { ru: 'Придумать историю или оформление', en: 'Create a story or visual design' }, areaScores: { creative: 2, communication: 1 } },
+    ],
+  },
+  {
+    id: 'team-style',
+    prompt: { ru: 'Какую роль вы чаще берёте в команде', en: 'Which role do you often take in a team' },
+    options: [
+      { label: { ru: 'Разобраться, как всё устроено', en: 'Figure out how things work' }, areaScores: { technology: 2, science: 1 } },
+      { label: { ru: 'Организовать план и сроки', en: 'Organize the plan and schedule' }, areaScores: { business: 2, communication: 1 } },
+      { label: { ru: 'Поддержать участников и наладить диалог', en: 'Support teammates and keep communication clear' }, areaScores: { people: 2, communication: 1 } },
+      { label: { ru: 'Предложить творческую концепцию', en: 'Suggest a creative concept' }, areaScores: { creative: 2, business: 1 } },
+    ],
+  },
+  {
+    id: 'impact',
+    prompt: { ru: 'Какую перемену вам хотелось бы увидеть', en: 'What kind of change would you like to see' },
+    options: [
+      { label: { ru: 'Технологии решают больше повседневных задач', en: 'Technology solves more everyday problems' }, areaScores: { technology: 2, business: 1 } },
+      { label: { ru: 'Новые знания помогают принимать решения', en: 'New knowledge helps people make decisions' }, areaScores: { science: 2, communication: 1 } },
+      { label: { ru: 'У людей больше возможностей для развития', en: 'People have more opportunities to grow' }, areaScores: { people: 2, business: 1 } },
+      { label: { ru: 'Культура становится доступнее и заметнее', en: 'Culture becomes more accessible and visible' }, areaScores: { creative: 2, communication: 1 } },
+    ],
+  },
+  {
+    id: 'learning',
+    prompt: { ru: 'Как вам удобнее осваивать новую тему', en: 'How do you prefer to learn a new topic' },
+    options: [
+      { label: { ru: 'Практиковаться на технических задачах', en: 'Practice with technical challenges' }, areaScores: { technology: 2, business: 1 } },
+      { label: { ru: 'Ставить вопросы и проверять гипотезы', en: 'Ask questions and test hypotheses' }, areaScores: { science: 2, people: 1 } },
+      { label: { ru: 'Обсуждать с другими и объяснять', en: 'Discuss it with others and explain it' }, areaScores: { communication: 2, people: 1 } },
+      { label: { ru: 'Пробовать разные способы выражения', en: 'Experiment with different ways to express it' }, areaScores: { creative: 2, technology: 1 } },
+    ],
+  },
 ];
 
 export const resultAreas: Record<string, TestResult> = {
