@@ -386,7 +386,7 @@ function CatalogPage() {
       {filtered.length ? (
         <>
           <div className="university-list" data-testid="list-universities">
-            {filtered.slice(0, visibleLimit).map((university) => <UniversityCard key={university.id} university={university} showCostSummary={Boolean(search.trim())} />)}
+            {filtered.slice(0, visibleLimit).map((university) => <UniversityCard key={university.id} university={university} />)}
           </div>
           {filtered.length > visibleLimit && (
             <div className="load-more-wrap">
@@ -409,11 +409,13 @@ function CatalogPage() {
   );
 }
 
-function UniversityCard({ university, showCostSummary }: { university: University; showCostSummary: boolean }) {
+function UniversityCard({ university }: { university: University }) {
   const { language } = useLanguage();
   const t = messages[language];
   const website = websiteFor(university);
   const insight = getUniversityInsight(university);
+  const tuitionSummary = getTuitionSummary(university, language);
+  const livingCost = getCountryLivingCost(university.countryCode, language);
 
   return (
     <article className="uni-card" data-testid={`card-university-${university.id}`}>
@@ -422,10 +424,10 @@ function UniversityCard({ university, showCostSummary }: { university: Universit
         <div className="uni-loc">
           {university.region ? `${university.region}, ` : ''}{getCountryName(university, language)}
         </div>
-        {showCostSummary && (
+        {(tuitionSummary || livingCost) && (
           <div className="card-highlights">
-            <div className="card-highlight-item"><strong>{t.tuitionTitle}</strong><span>{getTuitionSummary(university, language) ?? t.tuitionUnavailableShort}</span></div>
-            <div className="card-highlight-item"><strong>{t.livingTitle}</strong><span>{getCountryLivingCost(university.countryCode, language) ?? t.livingUnavailableShort}</span><small>{t.livingExcludingHousingNote}</small></div>
+            {tuitionSummary && <div className="card-highlight-item"><strong>{t.tuitionTitle}</strong><span>{tuitionSummary}</span></div>}
+            {livingCost && <div className="card-highlight-item"><strong>{t.livingTitle}</strong><span>{livingCost}</span><small>{t.livingExcludingHousingNote}</small></div>}
           </div>
         )}
         {insight && <span className={`data-badge ${insight.approximate ? 'approximate' : 'verified'}`}>{insight.approximate ? t.dataEstimate : t.dataVerified}</span>}
