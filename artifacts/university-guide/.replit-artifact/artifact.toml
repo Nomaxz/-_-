@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/university-guide/"
+title = "Навигатор вузов"
+description = "Русскоязычный каталог университетов и стран с фильтрами, подробными карточками вузов и разделом психологических тестов для абитуриентов."
+version = "1.0.0"
+id = "artifacts/university-guide"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/university-guide/" ]
+localPort = 22053
+
+[services.development]
+run = "pnpm --filter @workspace/university-guide run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/university-guide", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/university-guide/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22053"
+BASE_PATH = "/university-guide/"

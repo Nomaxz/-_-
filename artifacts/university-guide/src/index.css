@@ -1,0 +1,475 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: var(--sidebar-primary-border);
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: var(--sidebar-accent-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* LIGHT MODE */
+:root {
+  --button-outline: rgba(0, 0, 0, 0.1);
+  --badge-outline: rgba(0, 0, 0, 0.05);
+
+  /* Automatic computation of border around primary / danger buttons */
+  --opaque-button-border-intensity: -8; /* In terms of percentages */
+
+  /* Backgrounds applied on top of other backgrounds when hovered/active */
+  --elevate-1: rgba(0, 0, 0, 0.03);
+  --elevate-2: rgba(0, 0, 0, 0.08);
+
+  --background: 42 35% 96%;
+  --foreground: 213 26% 19%;
+  --border: 37 19% 84%;
+  --card: 42 33% 99%;
+  --card-foreground: 213 26% 19%;
+  --card-border: 37 19% 84%;
+  --sidebar: 42 35% 96%;
+  --sidebar-foreground: 213 26% 19%;
+  --sidebar-border: 37 19% 84%;
+  --sidebar-primary: 169 30% 31%;
+  --sidebar-primary-foreground: 42 35% 96%;
+  --sidebar-accent: 38 25% 91%;
+  --sidebar-accent-foreground: 213 26% 19%;
+  --sidebar-ring: 169 30% 31%;
+  --popover: 42 33% 99%;
+  --popover-foreground: 213 26% 19%;
+  --popover-border: 37 19% 84%;
+  --primary: 169 30% 31%;
+  --primary-foreground: 42 35% 96%;
+  --secondary: 38 25% 91%;
+  --secondary-foreground: 213 26% 19%;
+  --muted: 38 22% 92%;
+  --muted-foreground: 213 10% 46%;
+  --accent: 15 44% 76%;
+  --accent-foreground: 213 26% 19%;
+  --destructive: 4 57% 48%;
+  --destructive-foreground: 42 35% 96%;
+  --input: 37 19% 84%;
+  --ring: 169 30% 31%;
+  --chart-1: 169 30% 31%;
+  --chart-2: 15 44% 66%;
+  --chart-3: 213 26% 39%;
+  --chart-4: 43 50% 61%;
+  --chart-5: 120 16% 48%;
+  --app-font-sans: 'DM Sans', sans-serif;
+  --app-font-serif: 'Manrope', sans-serif;
+  --app-font-mono: 'DM Sans', monospace;
+  --radius: 0.5rem; /* 8px */
+  --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0); /*replace with H S L */
+  --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0); /*replace with H S L */
+  --shadow-sm:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-md:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-lg:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-xl:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  /* Automatically computed borders - intensity can be controlled by the user by the --opaque-button-border-intensity setting */
+
+  /* Fallback for older browsers */
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-primary-border: hsl(
+    from hsl(var(--sidebar-primary)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+
+  /* Fallback for older browsers */
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --sidebar-accent-border: hsl(
+    from hsl(var(--sidebar-accent)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+
+  /* Fallback for older browsers */
+  --primary-border: hsl(var(--primary));
+  --primary-border: hsl(
+    from hsl(var(--primary)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+
+  /* Fallback for older browsers */
+  --secondary-border: hsl(var(--secondary));
+  --secondary-border: hsl(
+    from hsl(var(--secondary)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+
+  /* Fallback for older browsers */
+  --muted-border: hsl(var(--muted));
+  --muted-border: hsl(
+    from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) /
+      alpha
+  );
+
+  /* Fallback for older browsers */
+  --accent-border: hsl(var(--accent));
+  --accent-border: hsl(
+    from hsl(var(--accent)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+
+  /* Fallback for older browsers */
+  --destructive-border: hsl(var(--destructive));
+  --destructive-border: hsl(
+    from hsl(var(--destructive)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+}
+
+.dark {
+  --button-outline: rgba(255, 255, 255, 0.1);
+  --badge-outline: rgba(255, 255, 255, 0.05);
+
+  --opaque-button-border-intensity: 9; /* In terms of percentages */
+
+  /* Backgrounds applied on top of other backgrounds when hovered/active */
+  --elevate-1: rgba(255, 255, 255, 0.04);
+  --elevate-2: rgba(255, 255, 255, 0.09);
+
+  --background: 213 24% 13%;
+  --foreground: 42 28% 92%;
+  --border: 213 14% 29%;
+  --card: 213 21% 17%;
+  --card-foreground: 42 28% 92%;
+  --card-border: 213 14% 29%;
+  --sidebar: 213 24% 13%;
+  --sidebar-foreground: 42 28% 92%;
+  --sidebar-border: 213 14% 29%;
+  --sidebar-primary: 169 35% 52%;
+  --sidebar-primary-foreground: 213 24% 13%;
+  --sidebar-accent: 213 18% 22%;
+  --sidebar-accent-foreground: 42 28% 92%;
+  --sidebar-ring: 169 35% 52%;
+  --popover: 213 21% 17%;
+  --popover-foreground: 42 28% 92%;
+  --popover-border: 213 14% 29%;
+  --primary: 169 35% 52%;
+  --primary-foreground: 213 24% 13%;
+  --secondary: 213 18% 22%;
+  --secondary-foreground: 42 28% 92%;
+  --muted: 213 18% 22%;
+  --muted-foreground: 213 10% 67%;
+  --accent: 15 44% 58%;
+  --accent-foreground: 42 28% 92%;
+  --destructive: 4 57% 58%;
+  --destructive-foreground: 213 24% 13%;
+
+  /* Used as the border around inputs. Dark mode: Should be a border that is light enough to have high contrast when rendered on a --card background. More contrast than standard --border */
+  --input: 213 14% 29%;
+  --ring: 169 35% 52%;
+  --chart-1: 169 35% 52%;
+  --chart-2: 15 44% 66%;
+  --chart-3: 213 26% 59%;
+  --chart-4: 43 50% 61%;
+  --chart-5: 120 16% 58%;
+
+  --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-sm:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 1px 2px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-md:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 2px 4px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-lg:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 4px 6px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-xl:
+    0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0),
+    0px 8px 10px -1px hsl(202.8169 89.1213% 53.1373% / 0);
+  --shadow-2xl: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0);
+}
+
+@layer base {
+  body { font-family: var(--app-font-sans); }
+  * { box-sizing: border-box; }
+}
+.app-shell { min-height: 100dvh; background: #f5f2e9; color: #26343a; }
+.topbar { height: 72px; border-bottom: 1px solid #ded9cd; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(20px,5vw,72px); background:#f8f6ef; }
+.brand { font-family:var(--app-font-serif); font-weight:800; letter-spacing:-.06em; font-size:24px; color:#1f3b3a; text-decoration:none; }
+.brand-mark { color:#c87f60; }
+.nav-links { display:flex; gap:8px; align-items:center; }
+.nav-link { padding:10px 14px; text-decoration:none; color:#5d6868; border-radius:6px; font-size:14px; transition:background .18s,color .18s; }
+.nav-link:hover,.nav-link.active { background:#e9e8dc; color:#1f4c47; }
+.page { width:min(1120px, calc(100% - 40px)); margin:0 auto; padding:46px 0 76px; }
+.eyebrow { color:#65817a; text-transform:uppercase; letter-spacing:.13em; font-size:11px; font-weight:700; }
+.page-title { font-family:var(--app-font-serif); font-size:clamp(34px,5vw,53px); line-height:1.05; letter-spacing:-.055em; margin:12px 0; color:#23393a; }
+.intro { color:#687475; font-size:16px; line-height:1.65; max-width:660px; margin:0; }
+.catalog-hero { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(230px,.6fr); gap:32px; align-items:end; padding:16px 0 34px; }
+.hero-note { padding:19px 21px; border-left:3px solid #c87f60; background:#ece9de; color:#56615e; font-size:13px; line-height:1.55; }
+.filter-panel { display:grid; grid-template-columns:1.5fr 1fr 1fr 1.1fr auto; gap:12px; background:#eae8de; border:1px solid #dfdbcf; padding:16px; margin:10px 0 26px; }
+.field { display:flex; flex-direction:column; gap:7px; }
+.field label,.field-label { font-size:12px; color:#596766; font-weight:700; }
+.control { appearance:none; width:100%; min-height:42px; border:1px solid #d5d1c5; background:#faf9f4; color:#2e3d3e; border-radius:4px; padding:9px 11px; font:inherit; font-size:14px; outline:none; }
+.control:focus-visible,button:focus-visible,a:focus-visible { outline:3px solid #c87f60; outline-offset:2px; }
+.search-wrap { position:relative; }
+.search-wrap svg { position:absolute; left:11px; top:13px; color:#7c8985; }
+.search-wrap input { padding-left:37px; }
+.button { border:1px solid #315b54; background:#315b54; color:#fffaf0; padding:10px 15px; min-height:42px; border-radius:4px; font:inherit; font-weight:600; cursor:pointer; transition:background .16s,transform .16s; }
+.button:hover { background:#244740; transform:translateY(-1px); }
+.button.secondary { background:transparent; color:#315b54; }
+.button.secondary:hover { background:#e9e8dc; }
+.result-meta { display:flex; justify-content:space-between; align-items:center; margin:20px 0 12px; color:#697574; font-size:13px; }
+.university-list { display:grid; gap:12px; }
+.uni-card { display:grid; grid-template-columns:1fr auto; gap:20px; padding:23px 25px; background:#fbfaf6; border:1px solid #e0dbcf; text-decoration:none; color:inherit; transition:transform .18s,border-color .18s; }
+.uni-card:hover { transform:translateY(-2px); border-color:#96aaa1; }
+.uni-card h2 { margin:0 0 7px; color:#284744; font:700 21px var(--app-font-serif); letter-spacing:-.03em; }
+.uni-loc { color:#7d8580; font-size:13px; margin-bottom:10px; }
+.uni-card p { color:#626d6b; font-size:14px; line-height:1.55; margin:0; max-width:740px; }
+.uni-aside { text-align:right; min-width:145px; color:#4a625d; font-size:13px; }
+.price { font-weight:700; font-size:15px; margin:5px 0 9px; }
+.tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
+.tag { color:#46625a; background:#e8ede4; border:1px solid #dce4d9; border-radius:3px; padding:5px 8px; font-size:11px; }
+.country-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:28px; }
+.country-card { background:#fbfaf6; border:1px solid #e0dbcf; padding:22px 24px; }
+.country-card h2 { font:700 23px var(--app-font-serif); color:#284744; margin:0 0 8px; }
+.country-card p { color:#67716d; line-height:1.6; font-size:14px; margin:0 0 15px; }
+.country-stats { display:flex; gap:22px; color:#50635f; font-size:12px; margin-bottom:17px; }
+.detail-head { border-bottom:1px solid #ddd8cb; padding-bottom:24px; margin-bottom:26px; }
+.detail-columns { display:grid; grid-template-columns:1.4fr .8fr; gap:36px; }
+.detail-section { margin:0 0 28px; }
+.detail-section h2 { font:700 20px var(--app-font-serif); color:#284744; margin:0 0 11px; }
+.detail-section p,.detail-section li { color:#5f6c68; font-size:14px; line-height:1.7; }
+.detail-section ul { padding-left:19px; margin:0; }
+.info-box { background:#eae8de; border-top:3px solid #c87f60; padding:20px; }
+.info-box h2 { font:700 18px var(--app-font-serif); margin:0 0 15px; color:#284744; }
+.info-row { border-top:1px solid #d8d4c9; padding:12px 0; font-size:13px; display:flex; justify-content:space-between; gap:12px; }
+.info-row span:first-child { color:#707b77; }
+.disclaimer { margin-top:20px; background:#f1e6d9; color:#76543f; padding:13px 15px; font-size:12px; line-height:1.5; }
+.test-card { margin-top:26px; background:#fbfaf6; border:1px solid #e0dbcf; padding:clamp(20px,4vw,38px); max-width:780px; }
+.test-progress { display:flex; gap:6px; margin:0 0 27px; }
+.progress-segment { height:4px; flex:1; background:#e0ddd3; }
+.progress-segment.filled { background:#416c62; }
+.question-count { font-size:12px; color:#77817c; margin-bottom:10px; }
+.question-title { font:700 clamp(23px,3vw,31px) var(--app-font-serif); letter-spacing:-.03em; color:#284744; margin:0 0 20px; }
+.option-list { display:grid; gap:9px; }
+.option-button { text-align:left; background:#f5f3eb; border:1px solid #e0dbcf; color:#384a48; padding:14px 15px; font:inherit; cursor:pointer; display:flex; align-items:center; gap:12px; }
+.option-button:hover { border-color:#78958b; background:#eff1e9; }
+.option-button.selected { border-color:#416c62; background:#e6eee7; }
+.radio-dot { width:16px; height:16px; border:1px solid #aeb9b1; border-radius:50%; flex:none; }
+.option-button.selected .radio-dot { border:5px solid #416c62; background:#fbfaf6; }
+.test-actions { display:flex; justify-content:space-between; margin-top:24px; }
+.result-panel { border-left:4px solid #416c62; background:#e8eee6; padding:23px; }
+.result-panel h2 { font:700 26px var(--app-font-serif); color:#284744; margin:0 0 10px; }
+.result-panel p { color:#586763; line-height:1.65; }
+.field-pills { display:flex; flex-wrap:wrap; gap:8px; }
+.field-pills span { padding:8px 11px; border:1px solid #c7d4c9; color:#385e54; font-size:13px; background:#f3f5ee; }
+.empty-state { border:1px dashed #c9c5b8; padding:36px 20px; text-align:center; color:#697471; background:#faf9f4; }
+.empty-state h2 { color:#34524d; font:700 21px var(--app-font-serif); }
+.footer { border-top:1px solid #ded9cd; text-align:center; padding:22px; color:#8a918c; font-size:11px; }
+@media(max-width:800px) {
+ .filter-panel { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .filter-panel .search-wrap { grid-column:1/-1; }
+ .filter-panel .button { grid-column:1/-1; }
+ .catalog-hero { grid-template-columns:1fr; gap:18px; }
+}
+@media(max-width:560px) {
+ .topbar { height:auto; min-height:65px; padding:12px 18px; align-items:flex-start; flex-direction:column; gap:8px; }
+ .nav-links { width:100%; gap:2px; }
+ .nav-link { padding:8px 10px; font-size:13px; }
+ .page { width:calc(100% - 32px); padding-top:30px; }
+ .filter-panel { grid-template-columns:1fr; }
+ .filter-panel .search-wrap { grid-column:auto; }
+ .uni-card { grid-template-columns:1fr; padding:19px; }
+ .uni-aside { text-align:left; }
+ .country-grid,.detail-columns { grid-template-columns:1fr; }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/**
+ * Using the elevate system.
+ * Automatic contrast adjustment.
+ *
+ * <element className="hover-elevate" />
+ * <element className="active-elevate-2" />
+ *
+ * // Using the tailwind utility when a data attribute is "on"
+ * <element className="toggle-elevate data-[state=on]:toggle-elevated" />
+ * // Or manually controlling the toggle state
+ * <element className="toggle-elevate toggle-elevated" />
+ *
+ * Elevation systems have to handle many states.
+ * - not-hovered, vs. hovered vs. active  (three mutually exclusive states)
+ * - toggled or not
+ * - focused or not (this is not handled with these utilities)
+ *
+ * Even without handling focused or not, this is six possible combinations that
+ * need to be distinguished from eachother visually.
+ */
+@layer utilities {
+  /* Hide ugly search cancel button in Chrome until we can style it properly */
+  input[type='search']::-webkit-search-cancel-button {
+    @apply hidden;
+  }
+
+  /* Placeholder styling for contentEditable div */
+  [contenteditable][data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+  }
+
+  /* .no-default-hover-elevate/no-default-active-elevate is an escape hatch so consumers of
+   * buttons/badges can remove the automatic brightness adjustment on interactions
+   * and program their own. */
+  .no-default-hover-elevate {
+  }
+
+  .no-default-active-elevate {
+  }
+
+  /**
+   * Toggleable backgrounds go behind the content. Hoverable/active goes on top.
+   * This way they can stack/compound. Both will overlap the parent's borders!
+   * So borders will be automatically adjusted both on toggle, and hover/active,
+   * and they will be compounded.
+   */
+  .toggle-elevate::before,
+  .toggle-elevate-2::before {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    /*border-radius: inherit;   match rounded corners */
+    border-radius: inherit;
+    z-index: -1;
+    /* sits behind content but above backdrop */
+  }
+
+  .toggle-elevate.toggle-elevated::before {
+    background-color: var(--elevate-2);
+  }
+
+  /* If there's a 1px border, adjust the inset so that it covers that parent's border */
+  .border.toggle-elevate::before {
+    inset: -1px;
+  }
+
+  /* Does not work on elements with overflow:hidden! */
+  .hover-elevate:not(.no-default-hover-elevate),
+  .active-elevate:not(.no-default-active-elevate),
+  .hover-elevate-2:not(.no-default-hover-elevate),
+  .active-elevate-2:not(.no-default-active-elevate) {
+    position: relative;
+    z-index: 0;
+  }
+
+  .hover-elevate:not(.no-default-hover-elevate)::after,
+  .active-elevate:not(.no-default-active-elevate)::after,
+  .hover-elevate-2:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:not(.no-default-active-elevate)::after {
+    content: '';
+    pointer-events: none;
+    position: absolute;
+    inset: 0px;
+    /*border-radius: inherit;   match rounded corners */
+    border-radius: inherit;
+    z-index: 999;
+    /* sits in front of content */
+  }
+
+  .hover-elevate:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-1);
+  }
+
+  .hover-elevate-2:hover:not(.no-default-hover-elevate)::after,
+  .active-elevate-2:active:not(.no-default-active-elevate)::after {
+    background-color: var(--elevate-2);
+  }
+
+  /* If there's a 1px border, adjust the inset so that it covers that parent's border */
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate-2:not(.no-hover-interaction-elevate)::after,
+  .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
+  .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
+    inset: -1px;
+  }
+}
