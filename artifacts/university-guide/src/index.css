@@ -262,7 +262,7 @@
   * { box-sizing: border-box; }
 }
 .app-shell { min-height: 100dvh; background: #f5f2e9; color: #26343a; }
-.topbar { height: 72px; border-bottom: 1px solid #ded9cd; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(20px,5vw,72px); background:#f8f6ef; }
+.topbar { position:relative; height: 72px; border-bottom: 1px solid #ded9cd; display:flex; align-items:center; justify-content:space-between; padding:0 clamp(20px,5vw,72px); background:#f8f6ef; }
 .brand { font-family:var(--app-font-serif); font-weight:800; letter-spacing:-.06em; font-size:24px; color:#1f3b3a; text-decoration:none; }
 .brand-mark { color:#c87f60; }
 .nav-links { display:flex; gap:8px; align-items:center; }
@@ -334,6 +334,28 @@
 .empty-state { border:1px dashed #c9c5b8; padding:36px 20px; text-align:center; color:#697471; background:#faf9f4; }
 .empty-state h2 { color:#34524d; font:700 21px var(--app-font-serif); }
 .footer { border-top:1px solid #ded9cd; text-align:center; padding:22px; color:#8a918c; font-size:11px; }
+
+.header-actions { display:flex; align-items:center; gap:14px; }
+.language-toggle { position:absolute; top:8px; right:12px; z-index:2; min-width:44px; min-height:36px; padding:6px 10px; border:1px solid #c8c5b8; border-radius:4px; background:transparent; color:#315b54; font:inherit; font-size:12px; font-weight:700; cursor:pointer; }
+.language-toggle:hover { background:#e9e8dc; }
+.filter-note { grid-column:1/-1; margin:0; color:#697471; font-size:12px; line-height:1.5; }
+.country-search { max-width:420px; margin-top:22px; }
+.country-count { color:#66716d; font-size:13px; margin:0 0 17px; }
+.uni-card h2 a { color:inherit; text-decoration:none; }
+.uni-card h2 a:hover { text-decoration:underline; text-underline-offset:3px; }
+.uni-aside { display:flex; flex-direction:column; align-items:flex-end; }
+.detail-link { display:inline-block; margin-top:14px; color:#315b54; font-size:13px; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
+.official-link { display:inline-flex; align-items:center; gap:5px; margin-top:7px; color:#315b54; font-size:14px; font-weight:700; text-decoration:none; }
+.uni-aside .official-link { justify-content:flex-end; }
+.official-link:hover,.detail-link:hover { color:#244740; }
+.load-more-wrap { display:flex; align-items:center; justify-content:center; gap:16px; margin:22px 0; color:#697471; font-size:13px; }
+.recommendation-title { margin:26px 0 10px; color:#284744; font-size:18px; }
+.recommendation-list { display:grid; gap:8px; margin:12px 0; }
+.recommendation-item { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:13px 15px; border:1px solid #d8ddd2; background:#f8f8f2; }
+.recommendation-name { color:#315b54; font-weight:700; text-decoration:none; }
+.recommendation-name:hover { text-decoration:underline; text-underline-offset:3px; }
+.recommendation-item > a:last-child { display:flex; color:#315b54; }
+.recommendation-note,.test-disclaimer { color:#697471; font-size:12px; line-height:1.55; }
 @media(max-width:800px) {
  .filter-panel { grid-template-columns:repeat(2,minmax(0,1fr)); }
  .filter-panel .search-wrap { grid-column:1/-1; }
@@ -342,14 +364,17 @@
 }
 @media(max-width:560px) {
  .topbar { height:auto; min-height:65px; padding:12px 18px; align-items:flex-start; flex-direction:column; gap:8px; }
- .nav-links { width:100%; gap:2px; }
+  .header-actions { width:100%; justify-content:space-between; gap:8px; }
+  .nav-links { width:auto; flex:1; flex-wrap:wrap; gap:2px; }
  .nav-link { padding:8px 10px; font-size:13px; }
  .page { width:calc(100% - 32px); padding-top:30px; }
  .filter-panel { grid-template-columns:1fr; }
  .filter-panel .search-wrap { grid-column:auto; }
+  .filter-note { grid-column:auto; }
  .uni-card { grid-template-columns:1fr; padding:19px; }
- .uni-aside { text-align:left; }
+  .uni-aside { text-align:left; align-items:flex-start; }
  .country-grid,.detail-columns { grid-template-columns:1fr; }
+  .result-meta { align-items:flex-start; flex-direction:column; gap:6px; }
 }
 
 @layer base {
