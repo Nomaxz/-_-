@@ -301,6 +301,7 @@
 .card-reputation { display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; margin:8px 0 4px; color:#50635f; font-size:12px; }
 .card-reputation strong { color:#294b45; }
 .card-reputation a { color:#315b54; text-decoration:underline; text-underline-offset:2px; }
+.rating-star { color:#c58b34; margin-left:2px; font-size:14px; }
 .card-highlight-item small,.muted-note,.country-living span { color:#7a817b; font-size:10px; line-height:1.35; }
 .uni-aside { text-align:right; min-width:145px; color:#4a625d; font-size:13px; }
 .price { font-weight:700; font-size:15px; margin:5px 0 9px; }

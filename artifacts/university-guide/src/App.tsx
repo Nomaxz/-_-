@@ -442,7 +442,7 @@ function UniversityCard({ university }: { university: University }) {
           <div className="card-reputation">
             <span><strong>{t.qsRankingLabel}</strong> #{reputation.qs2027Rank}</span>
             <a href={reputation.sourceUrl} target="_blank" rel="noreferrer">
-              {t.studentReviewsLabel}: {reputation.studentReviewRating.toFixed(1)}/5 · {formatNumber(reputation.reviewCount, language)} {t.reviewCountSuffix}
+              {t.studentReviewsLabel}: {reputation.studentReviewRating.toFixed(1)}/5 <span className="rating-star" aria-hidden="true">★</span> · {formatNumber(reputation.reviewCount, language)} {t.reviewCountSuffix}
             </a>
           </div>
         )}
