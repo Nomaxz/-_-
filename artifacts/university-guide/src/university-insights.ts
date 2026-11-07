@@ -36,7 +36,7 @@ function reputationFromSource(
   };
 }
 
-const universityReputationByName: Record<string, UniversityReputation> = {
+export const universityReputationByName: Readonly<Record<string, UniversityReputation>> = {
   'Technische Universität München': reputationFromSource('https://www.mastersportal.com/rankings-reviews/41/technical-university-of-munich.html', 25, 4.0, 100),
   'Ludwig-Maximilians-Universität München': reputationFromSource('https://www.mastersportal.com/rankings-reviews/218/ludwig-maximilians-university-munich.html', 61, 4.1, 100),
   'University of Bologna': reputationFromSource('https://www.mastersportal.com/rankings-reviews/606/university-of-bologna.html', 123, 4.2, 100),
