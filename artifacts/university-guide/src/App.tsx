@@ -16,6 +16,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Search } from 'lucide-react';
 import { getUniversityFacts, registryCoverage } from './university-facts';
 import { RegistryFacts } from './components/registry-facts';
+import { ReviewRating } from './components/review-rating';
 import {
   Link,
   Route,
@@ -48,8 +49,6 @@ import {
   sortUniversities,
   type ExamFilter,
   type UniversitySort,
-  isReviewRatingStale,
-  REVIEW_FRESHNESS_DAYS,
 } from './university-insights';
 
 const queryClient = new QueryClient();
@@ -104,10 +103,6 @@ const messages = {
     tuitionUnavailableShort: 'Уточните стоимость на сайте вуза',
     livingUnavailableShort: 'Нет оценки для этой страны',
     qsRankingLabel: 'Рейтинг QS, выпуск 2027',
-    studentReviewsLabel: 'Оценка отзывов',
-    reviewCountSuffix: 'отзывов',
-    reviewCheckedLabel: 'проверено',
-    reviewStaleWarning: `Оценка может быть устаревшей: не проверялась более ${REVIEW_FRESHNESS_DAYS} дней`,
     livingTitle: 'Проживание без жилья',
     livingExcludingHousingNote: 'Примерная сумма на месяц, без оплаты жилья; обучение считается отдельно.',
     sourcesTitle: 'Официальные источники',
@@ -209,10 +204,6 @@ const messages = {
     tuitionUnavailableShort: 'Confirm tuition on the university website',
     livingUnavailableShort: 'No estimate available for this country',
     qsRankingLabel: 'QS 2027 edition rank',
-    studentReviewsLabel: 'Student review rating',
-    reviewCountSuffix: 'reviews',
-    reviewCheckedLabel: 'checked',
-    reviewStaleWarning: `Rating may be outdated: not checked for over ${REVIEW_FRESHNESS_DAYS} days`,
     livingTitle: 'Living expenses excluding housing',
     livingExcludingHousingNote: 'Approximate monthly expenses, excluding housing; tuition is separate.',
     sourcesTitle: 'Official sources',
@@ -272,14 +263,6 @@ function formatNumber(value: number, language: Language) {
   return new Intl.NumberFormat(language === 'ru' ? 'ru-RU' : 'en-US').format(value);
 }
 
-function formatDate(value: string, language: Language) {
-  return new Intl.DateTimeFormat(language === 'ru' ? 'ru-RU' : 'en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${value}T12:00:00Z`));
-}
 
 function websiteFor(university: University) {
   return university.websites[0] ?? (university.domains[0] ? `https://${university.domains[0]}` : null);
@@ -539,23 +522,7 @@ function UniversityCard({ university }: { university: University }) {
                 <a href={reputation.qsSource.url} target="_blank" rel="noreferrer">{reputation.qsSource.label}</a>
               </span>
             )}
-            {reputation.studentReviewRating !== undefined && reputation.reviewSource && (
-              <span>
-                <strong>{t.studentReviewsLabel}</strong>: {reputation.studentReviewRating.toFixed(1)}/5
-                {' '}<span className="rating-star" aria-hidden="true">★</span>
-                {reputation.reviewCount !== undefined && ` · ${formatNumber(reputation.reviewCount, language)} ${t.reviewCountSuffix}`}
-                {' · '}
-                <a href={reputation.reviewSource.url} target="_blank" rel="noreferrer">{reputation.reviewSource.label}</a>
-                {reputation.reviewCheckedAt && (
-                  <small> · {t.reviewCheckedLabel} {formatDate(reputation.reviewCheckedAt, language)}</small>
-                )}
-                {isReviewRatingStale(reputation.reviewCheckedAt) && (
-                  <span className="review-stale-warning">
-                    <span aria-hidden="true">⚠ </span>{t.reviewStaleWarning}
-                  </span>
-                )}
-              </span>
-            )}
+            <ReviewRating reputation={reputation} language={language} />
           </div>
         )}
         {insight && <span className={`data-badge ${insight.approximate ? 'approximate' : 'verified'}`}>{insight.approximate ? t.dataEstimate : t.dataVerified}</span>}
