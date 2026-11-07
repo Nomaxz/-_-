@@ -80,6 +80,13 @@ export function getCountryName(country: Country | University, language: 'ru' | '
   }
 }
 
+export function getSortedCountries(language: 'ru' | 'en'): Country[] {
+  const collator = new Intl.Collator(language);
+  return [...countries].sort((a, b) =>
+    collator.compare(getCountryName(a, language), getCountryName(b, language)),
+  );
+}
+
 const recommendationKeywords: Record<string, string[]> = {
   technology: ['technology', 'technical', 'engineering', 'polytechnic', 'computer', 'informatics'],
   people: ['psychology', 'social work', 'sociology', 'education', 'humanities', 'health'],

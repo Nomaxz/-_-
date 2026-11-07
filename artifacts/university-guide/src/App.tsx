@@ -21,7 +21,7 @@ import {
   Router as WouterRouter,
 } from 'wouter';
 import {
-  countries,
+  getSortedCountries,
   getCountryName,
   recommendUniversities,
   universities,
@@ -318,6 +318,7 @@ function CatalogPage() {
   const queryCountry = new URLSearchParams(searchParams).get('country') ?? '';
   const { language } = useLanguage();
   const t = messages[language];
+  const sortedCountries = useMemo(() => getSortedCountries(language), [language]);
   const [search, setSearch] = useState('');
   const [country, setCountry] = useState(queryCountry);
   const [examFilter, setExamFilter] = useState<ExamFilter>('');
@@ -395,7 +396,7 @@ function CatalogPage() {
           <label htmlFor="country-filter">{t.countryLabel}</label>
           <select id="country-filter" className="control" value={country} onChange={(event) => setCountry(event.target.value)} data-testid="select-country">
             <option value="">{t.allCountries}</option>
-            {countries.map((item) => <option key={item.id} value={item.name}>{getCountryName(item, language)}</option>)}
+            {sortedCountries.map((item) => <option key={item.id} value={item.name}>{getCountryName(item, language)}</option>)}
           </select>
         </div>
         <div className="field">
@@ -528,7 +529,7 @@ function CountriesPage() {
   const [search, setSearch] = useState('');
   const visibleCountries = useMemo(() => {
     const query = search.trim().toLocaleLowerCase(language === 'ru' ? 'ru-RU' : 'en-US');
-    return countries.filter((country) => {
+    return getSortedCountries(language).filter((country) => {
       const localizedName = getCountryName(country, language).toLocaleLowerCase(language === 'ru' ? 'ru-RU' : 'en-US');
       return !query || localizedName.includes(query) || country.name.toLocaleLowerCase().includes(query);
     });
