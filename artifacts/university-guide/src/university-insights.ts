@@ -1,7 +1,8 @@
 import type { University } from './catalog';
 import type { Language } from './test-content';
 import { additionalSchoolDetails } from './data/university-details';
-import type { Insight, LocalizedText, ExamKind, PriceBand } from './data/university-details/types';
+import { additionalCountryGuides } from './data/country-guides';
+import { text, type Insight, type LocalizedText, type ExamKind, type PriceBand } from './data/university-details/types';
 
 export type UniversityReputation = {
   qs2027Rank?: number;
@@ -348,13 +349,28 @@ export const priceOptions: { value: PriceBand; label: LocalizedText }[] = [
   { value: 'high', label: { ru: 'Высокий · более $20 000', en: 'High · over $20,000/year' } },
 ];
 
+const unknownInsight: Insight = {
+    tuition: text('Подтверждённая стоимость для этого вуза пока не найдена.', 'Confirmed tuition for this university has not yet been found.'),
+    living: text('', ''),
+    admission: text('', ''),
+    funding: text('', ''),
+    exams: [],
+    priceBand: null,
+    approximate: true,
+    sources: [],
+};
+const extendedCountryProfiles: Record<string, Insight> = Object.fromEntries(
+  Object.entries(additionalCountryGuides).map(([code, guide]) => [code, { ...unknownInsight, ...guide }]),
+);
+
 export function getUniversityInsight(university: University): Insight | null {
   const existing = schoolInsights[university.name];
   if (existing) return existing;
-  const country = countryProfiles[university.countryCode];
+  const country = countryProfiles[university.countryCode] ?? extendedCountryProfiles[university.countryCode];
   const detail = additionalSchoolDetails[university.name];
-  if (detail && country) return { ...country, ...detail, approximate: false };
-  return country ?? null;
+  // Country guides and partial registry metadata must never imply verified
+  // institution-specific admissions or costs. Unknown fields stay empty.
+  return detail ? { ...unknownInsight, ...country, ...detail, approximate: false } : country ?? unknownInsight;
 }
 
 export function getTuitionSummary(university: University, language: Language) {
@@ -380,6 +396,7 @@ export function getTuitionSummary(university: University, language: Language) {
   return additionalSchoolDetails[university.name]?.tuitionSummary?.[language] ??
     schoolSummaries[university.name]?.[language] ??
     countrySummaries[university.countryCode]?.[language] ??
+    additionalCountryGuides[university.countryCode]?.tuitionSummary?.[language] ??
     null;
 }
 

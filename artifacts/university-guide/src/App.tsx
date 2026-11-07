@@ -11,6 +11,8 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Search } from 'lucide-react';
+import { getUniversityFacts, registryCoverage } from './university-facts';
+import { RegistryFacts } from './components/registry-facts';
 import {
   Link,
   Route,
@@ -81,14 +83,17 @@ const messages = {
     dataAccuracyLabel: 'Достоверность данных',
     allDataAccuracy: 'Все сведения',
     verifiedOnly: 'Проверенные',
-    approximateOnly: 'Приблизительные',
-    dataEstimate: 'Приблизительно',
+    approximateOnly: 'Неполные / примерные',
+    dataEstimate: 'Неполные или приблизительные сведения',
     dataVerified: 'Проверено по вузу',
-    countryEstimateNote: 'Это общие ориентиры по стране а не подтверждённые условия конкретного университета',
+    countryEstimateNote: 'Карточка заполнена частично. Общие ориентиры по стране не являются подтверждёнными условиями конкретного вуза. Разделы без найденных сведений не заполняются догадками.',
     checkedAtLabel: 'Сведения о вузе проверены',
     applicationTitle: 'Подача заявления и сроки',
     cityLabel: 'Город или кампус',
     detailCoverageLabel: 'Карточек со сведениями из источников вузов во всём каталоге',
+    registryCoverageLabel: 'Дополнены найденными сведениями ROR',
+    registryBadge: 'Есть сведения ROR',
+    establishedLabel: 'Основан',
     tuitionTitle: 'Стоимость обучения',
     tuitionUnavailableShort: 'Уточните стоимость на сайте вуза',
     livingUnavailableShort: 'Нет оценки для этой страны',
@@ -99,7 +104,7 @@ const messages = {
     livingTitle: 'Проживание без жилья',
     livingExcludingHousingNote: 'Примерная сумма на месяц, без оплаты жилья; обучение считается отдельно.',
     sourcesTitle: 'Официальные источники',
-    genericInfo: 'Нет проверенных сведений для этой страны. Используйте официальный сайт университета и уточните условия программы.',
+    genericInfo: 'Подтверждённые сведения пока не добавлены. Уточните условия программы на официальном сайте.',
     reset: 'Сбросить фильтры',
     countSuffix: 'вузов в каталоге',
     sourceLabel: 'Источник данных · прикреплённый каталог',
@@ -181,14 +186,17 @@ const messages = {
     dataAccuracyLabel: 'Data accuracy',
     allDataAccuracy: 'All information',
     verifiedOnly: 'Verified',
-    approximateOnly: 'Approximate',
-    dataEstimate: 'Approximate',
+    approximateOnly: 'Partial and approximate',
+    dataEstimate: 'Partial or approximate information',
     dataVerified: 'University source',
-    countryEstimateNote: 'These are country-level guidelines rather than verified conditions for this university',
+    countryEstimateNote: 'This profile is partial. Country guides are not verified conditions for this institution. Sections without available information are not filled with guesses.',
     checkedAtLabel: 'University information checked',
     applicationTitle: 'Application process and deadlines',
     cityLabel: 'City or campus',
     detailCoverageLabel: 'Profiles with institution-specific sources across the directory',
+    registryCoverageLabel: 'Enriched with available ROR metadata',
+    registryBadge: 'ROR facts available',
+    establishedLabel: 'Established',
     tuitionTitle: 'Tuition',
     tuitionUnavailableShort: 'Confirm tuition on the university website',
     livingUnavailableShort: 'No estimate available for this country',
@@ -199,7 +207,7 @@ const messages = {
     livingTitle: 'Living expenses excluding housing',
     livingExcludingHousingNote: 'Approximate monthly expenses, excluding housing; tuition is separate.',
     sourcesTitle: 'Official sources',
-    genericInfo: 'No verified information is available for this country. Use the university’s official website and confirm program-specific requirements.',
+    genericInfo: 'Confirmed information has not yet been added. Check course requirements on the official website.',
     reset: 'Reset filters',
     countSuffix: 'universities in directory',
     sourceLabel: 'Data source · attached directory',
@@ -338,10 +346,13 @@ function CatalogPage() {
   const filtered = useMemo(() => {
     const query = search.trim().toLocaleLowerCase(language === 'ru' ? 'ru-RU' : 'en-US');
     return sortUniversities(universities.filter((university) => {
+      const facts = getUniversityFacts(university);
       const searchText = [
         university.name,
         university.country,
         university.region,
+        ...Object.values(facts?.names ?? {}),
+        ...(facts?.cities ?? []),
         ...university.domains,
       ].join(' ').toLocaleLowerCase(language === 'ru' ? 'ru-RU' : 'en-US');
       const matchesSearch = !query || searchText.includes(query);
@@ -438,6 +449,7 @@ function CatalogPage() {
       </div>
       {sort !== 'default' && <p id="comparison-note" className="coverage-note" data-testid="text-comparison-note">{sort === 'qs-rank' ? t.sortQsNote : t.sortReviewsNote}</p>}
       <p className="coverage-note" data-testid="text-detail-coverage">{t.detailCoverageLabel}: {formatNumber(detailedUniversityCount, language)}. {t.admissionDisclaimer}</p>
+      <p className="coverage-note" data-testid="text-registry-coverage">{t.registryCoverageLabel}: {formatNumber(registryCoverage, language)} / {formatNumber(universities.length, language)}.</p>
       {filtered.length ? (
         <>
           <div className="university-list" data-testid="list-universities">
@@ -472,20 +484,22 @@ function UniversityCard({ university }: { university: University }) {
   const tuitionSummary = getTuitionSummary(university, language);
   const livingCost = getCountryLivingCost(university.countryCode, language);
   const reputation = getUniversityReputation(university);
+  const facts = getUniversityFacts(university);
 
   return (
     <article className="uni-card" data-testid={`card-university-${university.id}`}>
       <div>
         <h2><Link href="/" aria-label={language === 'ru' ? `${university.name}: на главную` : `${university.name}: home`}>{university.name}</Link></h2>
         <div className="uni-loc">
+          {facts?.cities.length ? `${facts.cities.join(', ')} · ` : ''}
           {university.region ? `${university.region}, ` : ''}{getCountryName(university, language)}
         </div>
-        {(tuitionSummary || livingCost) && (
-          <div className="card-highlights">
-            {tuitionSummary && <div className="card-highlight-item"><strong>{t.tuitionTitle}</strong><span>{tuitionSummary}</span></div>}
-            {livingCost && <div className="card-highlight-item"><strong>{t.livingTitle}</strong><span>{livingCost}</span><small>{t.livingExcludingHousingNote}</small></div>}
-          </div>
-        )}
+        {facts?.established && <div className="uni-loc">{t.establishedLabel}: {facts.established}</div>}
+        <div className="card-highlights">
+            <div className="card-highlight-item"><strong>{t.tuitionTitle}</strong><span>{tuitionSummary ?? t.tuitionUnavailableShort}</span></div>
+            <div className="card-highlight-item"><strong>{t.livingTitle}</strong><span>{livingCost ?? t.livingUnavailableShort}</span>{livingCost && <small>{t.livingExcludingHousingNote}</small>}</div>
+        </div>
+        {facts && <a className="data-badge" href={facts.source} target="_blank" rel="noreferrer">{t.registryBadge}</a>}
         {reputation && (
           <div className="card-reputation">
             {reputation.qs2027Rank !== undefined && reputation.qsSource && (
@@ -574,6 +588,7 @@ function UniversityPage() {
   }
   const website = websiteFor(university);
   const insight = getUniversityInsight(university);
+  const facts = getUniversityFacts(university);
 
   return (
     <div className="page">
@@ -588,10 +603,11 @@ function UniversityPage() {
       <div className="detail-columns">
         <div>
           <section className="detail-section"><h2>{t.tuitionTitle}</h2>{getTuitionSummary(university, language) && <div className="detail-tuition-summary" data-testid="text-tuition-summary">{getTuitionSummary(university, language)}</div>}<p>{insight?.tuition[language] ?? t.genericInfo}</p></section>
-          <section className="detail-section"><h2>{t.requirementsTitle}</h2><p>{insight?.admission[language] ?? t.genericInfo}</p></section>
+          {insight?.admission[language] && <section className="detail-section"><h2>{t.requirementsTitle}</h2><p>{insight.admission[language]}</p></section>}
           {insight?.application && <section className="detail-section" data-testid="section-application"><h2>{t.applicationTitle}</h2><p>{insight.application[language]}</p></section>}
-          <section className="detail-section"><h2>{t.benefitsTitle}</h2><p>{insight?.funding[language] ?? t.genericInfo}</p></section>
-          <section className="detail-section"><h2>{t.livingTitle}</h2><p>{getCountryLivingCost(university.countryCode, language) ?? t.genericInfo}</p><p className="muted-note">{t.livingExcludingHousingNote}</p></section>
+          {insight?.funding[language] && <section className="detail-section"><h2>{t.benefitsTitle}</h2><p>{insight.funding[language]}</p></section>}
+          <section className="detail-section"><h2>{t.livingTitle}</h2><p>{getCountryLivingCost(university.countryCode, language) ?? t.livingUnavailableShort}</p>{getCountryLivingCost(university.countryCode, language) && <p className="muted-note">{t.livingExcludingHousingNote}</p>}</section>
+          {facts && <RegistryFacts facts={facts} language={language} />}
           {insight?.sources.length ? <section className="detail-section"><h2>{t.sourcesTitle}</h2><ul>{insight.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></section> : null}
           <div className="disclaimer">{t.admissionDisclaimer}</div>
         </div>
@@ -600,6 +616,7 @@ function UniversityPage() {
             <h2>{t.directoryDetails}</h2>
             <div className="info-row"><span>{t.countryLabel}</span><strong>{getCountryName(university, language)}</strong></div>
             {insight?.city && <div className="info-row"><span>{t.cityLabel}</span><strong>{insight.city[language]}</strong></div>}
+            {!insight?.city && Boolean(facts?.cities.length) && <div className="info-row"><span>{t.cityLabel}</span><strong>{facts!.cities.join(', ')}</strong></div>}
             {university.region && <div className="info-row"><span>{t.regionLabel}</span><strong>{university.region}</strong></div>}
             <div className="info-row"><span>{t.officialWebsite}</span><strong>{website ? <a href={website} target="_blank" rel="noreferrer">{t.openWebsite}</a> : t.noWebsite}</strong></div>
           </div>
