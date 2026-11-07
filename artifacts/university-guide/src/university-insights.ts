@@ -1,20 +1,7 @@
 import type { University } from './catalog';
 import type { Language } from './test-content';
-
-type LocalizedText = Record<Language, string>;
-type ExamKind = 'secondary' | 'standardized' | 'language' | 'entrance';
-type PriceBand = 'low' | 'medium' | 'high';
-
-type Insight = {
-  tuition: LocalizedText;
-  living: LocalizedText;
-  admission: LocalizedText;
-  funding: LocalizedText;
-  exams: ExamKind[];
-  priceBand: PriceBand;
-  approximate: boolean;
-  sources: { label: string; url: string }[];
-};
+import { additionalSchoolDetails } from './data/university-details';
+import type { Insight, LocalizedText, ExamKind, PriceBand } from './data/university-details/types';
 
 export type UniversityReputation = {
   qs2027Rank?: number;
@@ -329,7 +316,12 @@ export const priceOptions: { value: PriceBand; label: LocalizedText }[] = [
 ];
 
 export function getUniversityInsight(university: University): Insight | null {
-  return schoolInsights[university.name] ?? countryProfiles[university.countryCode] ?? null;
+  const existing = schoolInsights[university.name];
+  if (existing) return existing;
+  const country = countryProfiles[university.countryCode];
+  const detail = additionalSchoolDetails[university.name];
+  if (detail && country) return { ...country, ...detail, approximate: false };
+  return country ?? null;
 }
 
 export function getTuitionSummary(university: University, language: Language) {
@@ -352,7 +344,8 @@ export function getTuitionSummary(university: University, language: Language) {
     US: { ru: 'Ориентир от USD 20 000 в год; зависит от вуза', en: 'Guide: from USD 20,000/year; varies by university' },
     NO: { ru: 'Зависит от вуза и программы', en: 'Varies by university and program' },
   };
-  return schoolSummaries[university.name]?.[language] ??
+  return additionalSchoolDetails[university.name]?.tuitionSummary?.[language] ??
+    schoolSummaries[university.name]?.[language] ??
     countrySummaries[university.countryCode]?.[language] ??
     null;
 }

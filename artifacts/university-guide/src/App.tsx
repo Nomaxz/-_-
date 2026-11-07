@@ -76,6 +76,11 @@ const messages = {
     approximateOnly: 'Приблизительные',
     dataEstimate: 'Приблизительно',
     dataVerified: 'Проверено по вузу',
+    countryEstimateNote: 'Это общие ориентиры по стране а не подтверждённые условия конкретного университета',
+    checkedAtLabel: 'Сведения о вузе проверены',
+    applicationTitle: 'Подача заявления и сроки',
+    cityLabel: 'Город или кампус',
+    detailCoverageLabel: 'Карточек со сведениями из источников вузов во всём каталоге',
     tuitionTitle: 'Стоимость обучения',
     tuitionUnavailableShort: 'Уточните стоимость на сайте вуза',
     livingUnavailableShort: 'Нет оценки для этой страны',
@@ -109,7 +114,7 @@ const messages = {
     benefitsTitle: 'Стипендии и преимущества',
     additionalTitle: 'Дополнительная информация',
     missingSourceInfo: 'В прикреплённом файле эти сведения не указаны. Проверьте информацию на официальном сайте университета.',
-    directoryDetails: 'Данные из каталога',
+    directoryDetails: 'Расположение и сайт',
     officialWebsite: 'Официальный сайт',
     openWebsite: 'Открыть сайт',
     noWebsite: 'Сайт в источнике не указан',
@@ -164,6 +169,11 @@ const messages = {
     approximateOnly: 'Approximate',
     dataEstimate: 'Approximate',
     dataVerified: 'University source',
+    countryEstimateNote: 'These are country-level guidelines rather than verified conditions for this university',
+    checkedAtLabel: 'University information checked',
+    applicationTitle: 'Application process and deadlines',
+    cityLabel: 'City or campus',
+    detailCoverageLabel: 'Profiles with institution-specific sources across the directory',
     tuitionTitle: 'Tuition',
     tuitionUnavailableShort: 'Confirm tuition on the university website',
     livingUnavailableShort: 'No estimate available for this country',
@@ -197,7 +207,7 @@ const messages = {
     benefitsTitle: 'Scholarships and benefits',
     additionalTitle: 'Additional information',
     missingSourceInfo: 'This information is not included in the attached file. Check the university website.',
-    directoryDetails: 'Directory information',
+    directoryDetails: 'Location and website',
     officialWebsite: 'Official website',
     openWebsite: 'Open website',
     noWebsite: 'No website listed in source',
@@ -290,6 +300,10 @@ function CatalogPage() {
   const [dataAccuracy, setDataAccuracy] = useState<'' | 'verified' | 'approximate'>('');
   const [visibleLimit, setVisibleLimit] = useState(24);
   const hasPriceFilter = priceBand !== '';
+  const detailedUniversityCount = useMemo(() => universities.filter((item) => {
+    const detail = getUniversityInsight(item);
+    return detail && !detail.approximate;
+  }).length, []);
 
   useEffect(() => setCountry(queryCountry), [queryCountry]);
   useEffect(() => setVisibleLimit(24), [search, country, examFilter, priceBand, dataAccuracy]);
@@ -390,6 +404,7 @@ function CatalogPage() {
         <span data-testid="text-result-count">{formatNumber(filtered.length, language)} {t.countSuffix}</span>
         <span>{t.sourceLabel}</span>
       </div>
+      <p className="coverage-note" data-testid="text-detail-coverage">{t.detailCoverageLabel}: {formatNumber(detailedUniversityCount, language)}. {t.admissionDisclaimer}</p>
       {filtered.length ? (
         <>
           <div className="university-list" data-testid="list-universities">
@@ -528,14 +543,17 @@ function UniversityPage() {
     <div className="page">
       <Link href="/" className="nav-link" data-testid="link-back"><ArrowLeft size={15} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5 }} />{t.backCatalog}</Link>
       <header className="detail-head" style={{ marginTop: 20 }}>
-        <div className="eyebrow">{getCountryName(university, language)}{university.region ? ` · ${university.region}` : ''}</div>
+        <div className="eyebrow">{getCountryName(university, language)}{insight?.city ? ` · ${insight.city[language]}` : university.region ? ` · ${university.region}` : ''}</div>
         <h1 className="page-title"><Link href="/" className="home-title-link">{university.name}</Link></h1>
         {insight && <span className={`data-badge ${insight.approximate ? 'approximate' : 'verified'}`}>{insight.approximate ? t.dataEstimate : t.dataVerified}</span>}
+        {insight?.checkedAt && <p className="coverage-note">{t.checkedAtLabel}: <time dateTime={insight.checkedAt}>{new Intl.DateTimeFormat(language === 'ru' ? 'ru-RU' : 'en-GB', { timeZone: 'UTC' }).format(new Date(`${insight.checkedAt}T00:00:00Z`))}</time></p>}
+        {insight?.approximate && <p className="disclaimer">{t.countryEstimateNote}</p>}
       </header>
       <div className="detail-columns">
         <div>
-          <section className="detail-section"><h2>{t.tuitionTitle}</h2><p>{insight?.tuition[language] ?? t.genericInfo}</p></section>
+          <section className="detail-section"><h2>{t.tuitionTitle}</h2>{getTuitionSummary(university, language) && <div className="detail-tuition-summary" data-testid="text-tuition-summary">{getTuitionSummary(university, language)}</div>}<p>{insight?.tuition[language] ?? t.genericInfo}</p></section>
           <section className="detail-section"><h2>{t.requirementsTitle}</h2><p>{insight?.admission[language] ?? t.genericInfo}</p></section>
+          {insight?.application && <section className="detail-section" data-testid="section-application"><h2>{t.applicationTitle}</h2><p>{insight.application[language]}</p></section>}
           <section className="detail-section"><h2>{t.benefitsTitle}</h2><p>{insight?.funding[language] ?? t.genericInfo}</p></section>
           <section className="detail-section"><h2>{t.livingTitle}</h2><p>{getCountryLivingCost(university.countryCode, language) ?? t.genericInfo}</p><p className="muted-note">{t.livingExcludingHousingNote}</p></section>
           {insight?.sources.length ? <section className="detail-section"><h2>{t.sourcesTitle}</h2><ul>{insight.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></section> : null}
@@ -545,6 +563,7 @@ function UniversityPage() {
           <div className="info-box">
             <h2>{t.directoryDetails}</h2>
             <div className="info-row"><span>{t.countryLabel}</span><strong>{getCountryName(university, language)}</strong></div>
+            {insight?.city && <div className="info-row"><span>{t.cityLabel}</span><strong>{insight.city[language]}</strong></div>}
             {university.region && <div className="info-row"><span>{t.regionLabel}</span><strong>{university.region}</strong></div>}
             <div className="info-row"><span>{t.officialWebsite}</span><strong>{website ? <a href={website} target="_blank" rel="noreferrer">{t.openWebsite}</a> : t.noWebsite}</strong></div>
           </div>
