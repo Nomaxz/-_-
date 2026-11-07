@@ -12,6 +12,20 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Campass" />
     <meta name="twitter:description" content="Campass — университеты, стоимость обучения и информация для поступления." />
+    <script>
+      (function () {
+        var theme = 'light';
+        try {
+          var stored = null;
+          try { stored = window.localStorage.getItem('university-guide-theme'); } catch (e) {}
+          if (stored === 'light' || stored === 'dark') theme = stored;
+          else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) theme = 'dark';
+        } catch (e) {}
+        var root = document.documentElement;
+        if (theme === 'dark') root.classList.add('dark');
+        root.style.colorScheme = theme;
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -17,6 +17,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Search } from 'lucide-react';
 import { getUniversityFacts, registryCoverage } from './university-facts';
 import { RegistryFacts } from './components/registry-facts';
 import { ReviewRating } from './components/review-rating';
+import { ThemeToggle } from './theme/theme-toggle';
 import {
   Link,
   Route,
@@ -302,6 +303,7 @@ function Shell({ children }: { children: ReactNode }) {
           >
             {language === 'ru' ? 'EN' : 'RU'}
           </button>
+          <ThemeToggle language={language} />
         </div>
       </header>
       <main>{children}</main>
