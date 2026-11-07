@@ -80,7 +80,7 @@ const messages = {
     tuitionUnavailableShort: 'Уточните стоимость на сайте вуза',
     livingUnavailableShort: 'Нет оценки для этой страны',
     qsRankingLabel: 'QS 2027',
-    studentReviewsLabel: 'Отзывы Studyportals',
+    studentReviewsLabel: 'Оценка отзывов',
     reviewCountSuffix: 'отзывов',
     livingTitle: 'Проживание без жилья',
     livingExcludingHousingNote: 'Примерная сумма на месяц, без оплаты жилья; обучение считается отдельно.',
@@ -168,7 +168,7 @@ const messages = {
     tuitionUnavailableShort: 'Confirm tuition on the university website',
     livingUnavailableShort: 'No estimate available for this country',
     qsRankingLabel: 'QS 2027',
-    studentReviewsLabel: 'Studyportals reviews',
+    studentReviewsLabel: 'Student review rating',
     reviewCountSuffix: 'reviews',
     livingTitle: 'Living expenses excluding housing',
     livingExcludingHousingNote: 'Approximate monthly expenses, excluding housing; tuition is separate.',
@@ -440,10 +440,21 @@ function UniversityCard({ university }: { university: University }) {
         )}
         {reputation && (
           <div className="card-reputation">
-            <span><strong>{t.qsRankingLabel}</strong> #{reputation.qs2027Rank}</span>
-            <a href={reputation.sourceUrl} target="_blank" rel="noreferrer">
-              {t.studentReviewsLabel}: {reputation.studentReviewRating.toFixed(1)}/5 <span className="rating-star" aria-hidden="true">★</span> · {formatNumber(reputation.reviewCount, language)} {t.reviewCountSuffix}
-            </a>
+            {reputation.qs2027Rank !== undefined && reputation.qsSource && (
+              <span>
+                <strong>{t.qsRankingLabel}</strong> #{reputation.qs2027Rank} ·{' '}
+                <a href={reputation.qsSource.url} target="_blank" rel="noreferrer">{reputation.qsSource.label}</a>
+              </span>
+            )}
+            {reputation.studentReviewRating !== undefined && reputation.reviewSource && (
+              <span>
+                <strong>{t.studentReviewsLabel}</strong>: {reputation.studentReviewRating.toFixed(1)}/5
+                {' '}<span className="rating-star" aria-hidden="true">★</span>
+                {reputation.reviewCount !== undefined && ` · ${formatNumber(reputation.reviewCount, language)} ${t.reviewCountSuffix}`}
+                {' · '}
+                <a href={reputation.reviewSource.url} target="_blank" rel="noreferrer">{reputation.reviewSource.label}</a>
+              </span>
+            )}
           </div>
         )}
         {insight && <span className={`data-badge ${insight.approximate ? 'approximate' : 'verified'}`}>{insight.approximate ? t.dataEstimate : t.dataVerified}</span>}

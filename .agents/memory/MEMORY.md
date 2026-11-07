@@ -1,0 +1,1 @@
+- [University reputation sources](university-reputation-sources.md) — keep ranking and review citations separate; omit any metric that lacks a verified source.

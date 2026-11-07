@@ -17,23 +17,70 @@ type Insight = {
 };
 
 export type UniversityReputation = {
-  qs2027Rank: number;
-  studentReviewRating: number;
-  reviewCount: number;
-  sourceUrl: string;
+  qs2027Rank?: number;
+  qsSource?: { label: string; url: string };
+  studentReviewRating?: number;
+  reviewCount?: number;
+  reviewSource?: { label: string; url: string };
 };
 
+function reputationFromSource(url: string, qs2027Rank?: number, studentReviewRating?: number, reviewCount?: number): UniversityReputation {
+  return {
+    ...(qs2027Rank !== undefined
+      ? { qs2027Rank, qsSource: { label: 'QS 2027 · Mastersportal', url } }
+      : {}),
+    ...(studentReviewRating !== undefined
+      ? {
+          studentReviewRating,
+          ...(reviewCount !== undefined ? { reviewCount } : {}),
+          reviewSource: { label: 'Studyportals · Mastersportal', url },
+        }
+      : {}),
+  };
+}
+
 const universityReputationByName: Record<string, UniversityReputation> = {
-  'Technische Universität München': { qs2027Rank: 25, studentReviewRating: 4.0, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/41/technical-university-of-munich.html' },
-  'Ludwig-Maximilians-Universität München': { qs2027Rank: 61, studentReviewRating: 4.1, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/218/ludwig-maximilians-university-munich.html' },
-  'University of Bologna': { qs2027Rank: 123, studentReviewRating: 4.2, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/606/university-of-bologna.html' },
-  'University of Roma "La Sapienza"': { qs2027Rank: 111, studentReviewRating: 4.2, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/642/sapienza-university-of-rome.html' },
-  'University of Toronto': { qs2027Rank: 32, studentReviewRating: 4.1, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/11734/university-of-toronto.html' },
-  'University of British Columbia': { qs2027Rank: 45, studentReviewRating: 4.2, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/11804/university-of-british-columbia.html' },
-  'Harvard University': { qs2027Rank: 5, studentReviewRating: 4.1, reviewCount: 100, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/11731/harvard-university.html' },
-  'Massachusetts Institute of Technology': { qs2027Rank: 1, studentReviewRating: 4.3, reviewCount: 59, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/11740/massachusetts-institute-of-technology.html' },
-  'University of Oslo': { qs2027Rank: 131, studentReviewRating: 4.4, reviewCount: 34, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/13/university-of-oslo.html' },
-  'Norwegian University of Science and Technology': { qs2027Rank: 264, studentReviewRating: 4.3, reviewCount: 39, sourceUrl: 'https://www.mastersportal.com/rankings-reviews/14/norwegian-university-of-science-and-technology.html' },
+  'Technische Universität München': reputationFromSource('https://www.mastersportal.com/rankings-reviews/41/technical-university-of-munich.html', 25, 4.0, 100),
+  'Ludwig-Maximilians-Universität München': reputationFromSource('https://www.mastersportal.com/rankings-reviews/218/ludwig-maximilians-university-munich.html', 61, 4.1, 100),
+  'University of Bologna': reputationFromSource('https://www.mastersportal.com/rankings-reviews/606/university-of-bologna.html', 123, 4.2, 100),
+  'University of Roma "La Sapienza"': reputationFromSource('https://www.mastersportal.com/rankings-reviews/642/sapienza-university-of-rome.html', 111, 4.2, 100),
+  'University of Toronto': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11734/university-of-toronto.html', 32, 4.1, 100),
+  'University of British Columbia': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11804/university-of-british-columbia.html', 45, 4.2, 100),
+  'Harvard University': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11731/harvard-university.html', 5, 4.1, 100),
+  'Massachusetts Institute of Technology': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11740/massachusetts-institute-of-technology.html', 1, 4.3, 59),
+  'University of Oslo': reputationFromSource('https://www.mastersportal.com/rankings-reviews/13/university-of-oslo.html', 131, 4.4, 34),
+  'Norwegian University of Science and Technology': reputationFromSource('https://www.mastersportal.com/rankings-reviews/14/norwegian-university-of-science-and-technology.html', 264, 4.3, 39),
+  'Rheinisch Westfälische Technische Hochschule Aachen': reputationFromSource('https://www.mastersportal.com/rankings-reviews/47/rwth-aachen-university.html', 104, 4.3),
+  'Universität Stuttgart': reputationFromSource('https://www.mastersportal.com/rankings-reviews/48/university-of-stuttgart.html', 318, 4.3),
+  'Justus Liebig Universität Gießen': reputationFromSource('https://www.mastersportal.com/rankings-reviews/266/justus-liebig-university-giessen.html', 521, 4.5),
+  'Technische Universität Berlin': reputationFromSource('https://www.mastersportal.com/rankings-reviews/278/tu-berlin.html', 158, 3.9),
+  'Freie Universität Berlin': reputationFromSource('https://www.mastersportal.com/rankings-reviews/31/freie-universitat-berlin.html', undefined, 4.3),
+  'Rheinische Friedrich-Wilhelms Universität Bonn': reputationFromSource('https://www.mastersportal.com/rankings-reviews/45/university-of-bonn.html', undefined, 4.4),
+  'Polytechnic Institute of Milan': reputationFromSource('https://www.mastersportal.com/rankings-reviews/601/politecnico-di-milano.html', 87, 4.1),
+  'Polytechnic Institute of Turin': reputationFromSource('https://www.mastersportal.com/rankings-reviews/71/politecnico-di-torino.html', 206, 4.2),
+  'University of Calabria': reputationFromSource('https://www.mastersportal.com/rankings-reviews/14071/university-of-calabria.html', 851, 4.2),
+  'University of Siena': reputationFromSource('https://www.mastersportal.com/rankings-reviews/696/university-of-siena.html', 572, 4.3),
+  'University of Roma "Tor Vergata"': reputationFromSource('https://www.mastersportal.com/rankings-reviews/902/tor-vergata-university-of-rome.html', 342, 4.2),
+  'University of Trento': reputationFromSource('https://www.mastersportal.com/rankings-reviews/321/university-of-trento.html', undefined, 4.1),
+  'University of Padua': reputationFromSource('https://www.mastersportal.com/rankings-reviews/518/university-of-padua.html', undefined, 4.2),
+  'University of Pisa': reputationFromSource('https://www.mastersportal.com/rankings-reviews/501/university-of-pisa.html', undefined, 4.1),
+  'Simon Fraser University': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11145/simon-fraser-university.html', 312, 4.1),
+  'Dalhousie University': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11901/dalhousie-university.html', 298, 4.1),
+  'Université de Montréal': reputationFromSource('https://www.mastersportal.com/rankings-reviews/12390/university-of-montreal.html', 162, 4.2),
+  'University of Guelph': reputationFromSource('https://www.mastersportal.com/rankings-reviews/12332/university-of-guelph.html', 546, 4.2),
+  'University of Windsor': reputationFromSource('https://www.mastersportal.com/rankings-reviews/14215/university-of-windsor.html', 537, 4.4),
+  'McGill University': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11742/mcgill-university.html', 30, 4.4),
+  'McMaster University': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11744/mcmaster-university.html', undefined, 4.5),
+  'Brown University': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11713/brown-university.html', 66, 4.6),
+  'Pennsylvania State University': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11761/pennsylvania-state-university.html', 92, 4.5),
+  'University of California, Los Angeles': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11795/university-of-california-los-angeles.html', 49, 4.2),
+  'University of Memphis': reputationFromSource('https://www.mastersportal.com/rankings-reviews/14249/university-of-memphis.html', 1201, 4.3),
+  'Duke University': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11720/duke-university.html', undefined, 4.3),
+  'Yale University': reputationFromSource('https://www.mastersportal.com/rankings-reviews/11715/yale-university.html', undefined, 4.2),
+  'Norwegian University of Life Sciences': reputationFromSource('https://www.mastersportal.com/rankings-reviews/168/norwegian-university-of-life-sciences.html', 761, 4.4),
+  'University of Tromsø': reputationFromSource('https://www.mastersportal.com/rankings-reviews/177/uit-the-arctic-university-of-norway.html', 629, 4.1),
+  'University of Bergen': reputationFromSource('https://www.mastersportal.com/rankings-reviews/15/university-of-bergen.html', undefined, 4.1),
+  'University of Agder': reputationFromSource('https://www.mastersportal.com/universities/1508/university-of-agder.html', undefined, 4.4),
 };
 
 export function getUniversityReputation(university: University) {
