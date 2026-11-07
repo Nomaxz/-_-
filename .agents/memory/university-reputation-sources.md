@@ -14,3 +14,9 @@ The user chose 180 days as the review-rating freshness period. Warn only after m
 **Why:** The user explicitly approved this period for helping visitors identify potentially outdated review scores.
 
 **How to apply:** Preserve this product threshold when changing review freshness behavior, with warnings available in Russian and English.
+
+Mastersportal may reject automated availability requests with HTTP 403. Do not treat this as evidence that a citation or its rating is invalid.
+
+**Why:** A live check from the workspace returned HTTP 403 across the reputation sources, so automated reachability alone cannot distinguish missing pages from bot protection.
+
+**How to apply:** Keep such results diagnostic, request manual browser verification before changing source data, and never remove ratings solely because an automated request was blocked.
