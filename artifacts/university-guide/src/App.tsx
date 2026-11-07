@@ -84,9 +84,10 @@ const messages = {
     tuitionTitle: 'Стоимость обучения',
     tuitionUnavailableShort: 'Уточните стоимость на сайте вуза',
     livingUnavailableShort: 'Нет оценки для этой страны',
-    qsRankingLabel: 'QS 2027',
+    qsRankingLabel: 'Рейтинг QS, выпуск 2027',
     studentReviewsLabel: 'Оценка отзывов',
     reviewCountSuffix: 'отзывов',
+    reviewCheckedLabel: 'проверено',
     livingTitle: 'Проживание без жилья',
     livingExcludingHousingNote: 'Примерная сумма на месяц, без оплаты жилья; обучение считается отдельно.',
     sourcesTitle: 'Официальные источники',
@@ -177,9 +178,10 @@ const messages = {
     tuitionTitle: 'Tuition',
     tuitionUnavailableShort: 'Confirm tuition on the university website',
     livingUnavailableShort: 'No estimate available for this country',
-    qsRankingLabel: 'QS 2027',
+    qsRankingLabel: 'QS 2027 edition rank',
     studentReviewsLabel: 'Student review rating',
     reviewCountSuffix: 'reviews',
+    reviewCheckedLabel: 'checked',
     livingTitle: 'Living expenses excluding housing',
     livingExcludingHousingNote: 'Approximate monthly expenses, excluding housing; tuition is separate.',
     sourcesTitle: 'Official sources',
@@ -249,6 +251,15 @@ function useLanguage() {
 
 function formatNumber(value: number, language: Language) {
   return new Intl.NumberFormat(language === 'ru' ? 'ru-RU' : 'en-US').format(value);
+}
+
+function formatDate(value: string, language: Language) {
+  return new Intl.DateTimeFormat(language === 'ru' ? 'ru-RU' : 'en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(`${value}T12:00:00Z`));
 }
 
 function websiteFor(university: University) {
@@ -468,6 +479,9 @@ function UniversityCard({ university }: { university: University }) {
                 {reputation.reviewCount !== undefined && ` · ${formatNumber(reputation.reviewCount, language)} ${t.reviewCountSuffix}`}
                 {' · '}
                 <a href={reputation.reviewSource.url} target="_blank" rel="noreferrer">{reputation.reviewSource.label}</a>
+                {reputation.reviewCheckedAt && (
+                  <small> · {t.reviewCheckedLabel} {formatDate(reputation.reviewCheckedAt, language)}</small>
+                )}
               </span>
             )}
           </div>

@@ -8,10 +8,19 @@ export type UniversityReputation = {
   qsSource?: { label: string; url: string };
   studentReviewRating?: number;
   reviewCount?: number;
+  reviewCheckedAt?: string;
   reviewSource?: { label: string; url: string };
 };
 
-function reputationFromSource(url: string, qs2027Rank?: number, studentReviewRating?: number, reviewCount?: number): UniversityReputation {
+const REVIEW_DATA_CHECKED_AT = '2026-11-07';
+
+function reputationFromSource(
+  url: string,
+  qs2027Rank?: number,
+  studentReviewRating?: number,
+  reviewCount?: number,
+  reviewCheckedAt = REVIEW_DATA_CHECKED_AT,
+): UniversityReputation {
   return {
     ...(qs2027Rank !== undefined
       ? { qs2027Rank, qsSource: { label: 'QS 2027 · Mastersportal', url } }
@@ -20,6 +29,7 @@ function reputationFromSource(url: string, qs2027Rank?: number, studentReviewRat
       ? {
           studentReviewRating,
           ...(reviewCount !== undefined ? { reviewCount } : {}),
+          reviewCheckedAt,
           reviewSource: { label: 'Studyportals · Mastersportal', url },
         }
       : {}),
