@@ -1,11 +1,14 @@
-import {
-  createContext,
-  type ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { fields, levels, matchesAcademic, type Field, type Level } from '@workspace/campass-data';
+import { LanguageProvider, useLanguage } from './language';
+import { useSession } from './features/session';
+import { useCompareIds } from './features/compare-store';
+import { UniversityActions } from './features/university-actions';
+import { ProgrammeSection, programmeCoverage } from './features/programmes';
+import { ComparePage } from './pages/compare';
+import { AdmissionsPage } from './pages/admissions';
+import { ProfilePage } from './pages/profile';
+import { AuthPage } from './pages/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -264,18 +267,6 @@ const messages = {
   },
 } as const;
 
-type LanguageContextValue = {
-  language: Language;
-  setLanguage: (language: Language) => void;
-};
-
-const LanguageContext = createContext<LanguageContextValue | null>(null);
-
-function useLanguage() {
-  const context = useContext(LanguageContext);
-  if (!context) throw new Error('Language context is missing');
-  return context;
-}
 
 function formatNumber(value: number, language: Language) {
   return new Intl.NumberFormat(language === 'ru' ? 'ru-RU' : 'en-US').format(value);
@@ -299,6 +290,8 @@ function Shell({ children }: { children: ReactNode }) {
   const { language, setLanguage } = useLanguage();
   const t = messages[language];
   const isActive = (path: string) => (path === '/' ? location === '/' : location.startsWith(path));
+  const { user, isLoading } = useSession();
+  const compareCount = useCompareIds().length;
 
   return (
     <div className="app-shell">
@@ -309,6 +302,13 @@ function Shell({ children }: { children: ReactNode }) {
             <Link href="/" className={`nav-link ${isActive('/') ? 'active' : ''}`} data-testid="link-catalog">{t.navUniversities}</Link>
             <Link href="/countries" className={`nav-link ${isActive('/countries') ? 'active' : ''}`} data-testid="link-countries">{t.navCountries}</Link>
             <Link href="/tests" className={`nav-link ${isActive('/tests') ? 'active' : ''}`} data-testid="link-tests">{t.navTests}</Link>
+            <Link href="/compare" className={`nav-link ${isActive('/compare') ? 'active' : ''}`} data-testid="link-compare">{language === 'ru' ? 'Сравнение' : 'Compare'}{compareCount > 0 && <span className="nav-count" data-testid="text-nav-compare-count">{compareCount}</span>}</Link>
+            <Link href="/admissions" className={`nav-link ${isActive('/admissions') ? 'active' : ''}`} data-testid="link-admissions">{language === 'ru' ? 'Поступление' : 'Admissions'}</Link>
+            {isLoading ? <span className="nav-link nav-pending" aria-hidden="true">···</span> : user ? (
+              <Link href="/profile" className={`nav-link nav-user ${isActive('/profile') ? 'active' : ''}`} data-testid="link-profile">{user.username}</Link>
+            ) : (
+              <Link href="/sign-in" className={`nav-link nav-user ${isActive('/sign-') ? 'active' : ''}`} data-testid="link-sign-in">{language === 'ru' ? 'Войти' : 'Sign in'}</Link>
+            )}
           </nav>
           <button
             type="button"
@@ -339,6 +339,8 @@ function CatalogPage() {
   const [priceBand, setPriceBand] = useState('');
   const [dataAccuracy, setDataAccuracy] = useState<'' | 'verified' | 'approximate' | 'unlabeled'>('');
   const [sort, setSort] = useState<UniversitySort>('default');
+  const [field, setField] = useState<Field | ''>('');
+  const [level, setLevel] = useState<Level | ''>('');
   const [visibleLimit, setVisibleLimit] = useState(24);
   const hasPriceFilter = priceBand !== '';
   const detailedUniversityCount = useMemo(() => universities.filter((item) => {
@@ -347,7 +349,7 @@ function CatalogPage() {
   }).length, []);
 
   useEffect(() => setCountry(queryCountry), [queryCountry]);
-  useEffect(() => setVisibleLimit(24), [search, country, examFilter, priceBand, dataAccuracy, sort]);
+  useEffect(() => setVisibleLimit(24), [search, country, examFilter, priceBand, dataAccuracy, sort, field, level]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLocaleLowerCase(language === 'ru' ? 'ru-RU' : 'en-US');
@@ -371,9 +373,10 @@ function CatalogPage() {
         (dataAccuracy === 'unlabeled'
           ? !insight
           : Boolean(insight && (dataAccuracy === 'approximate' ? insight.approximate : !insight.approximate)));
-      return matchesSearch && matchesCountry && matchesTuition && matchesExam && matchesAccuracy;
+      const matchesProgramme = matchesAcademic(university, field, level);
+      return matchesSearch && matchesCountry && matchesTuition && matchesExam && matchesAccuracy && matchesProgramme;
     }), sort);
-  }, [search, country, examFilter, priceBand, dataAccuracy, hasPriceFilter, language, sort]);
+  }, [search, country, examFilter, priceBand, dataAccuracy, hasPriceFilter, language, sort, field, level]);
 
   const resetFilters = () => {
     setSearch('');
@@ -382,6 +385,8 @@ function CatalogPage() {
     setPriceBand('');
     setDataAccuracy('');
     setSort('default');
+    setField('');
+    setLevel('');
   };
 
   return (
@@ -441,8 +446,25 @@ function CatalogPage() {
             <option value="unlabeled">{t.unlabeledOnly}</option>
           </select>
         </div>
+        <div className="field">
+          <label htmlFor="field-filter">{language === 'ru' ? 'Направление' : 'Subject'}</label>
+          <select id="field-filter" className="control" value={field} onChange={(event) => setField(event.target.value as Field | '')} data-testid="select-field">
+            <option value="">{language === 'ru' ? 'Любое' : 'Any subject'}</option>
+            {(Object.keys(fields) as Field[]).map((key) => <option key={key} value={key}>{fields[key][language]}</option>)}
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="level-filter">{language === 'ru' ? 'Уровень' : 'Degree level'}</label>
+          <select id="level-filter" className="control" value={level} onChange={(event) => setLevel(event.target.value as Level | '')} data-testid="select-level">
+            <option value="">{language === 'ru' ? 'Любой' : 'Any level'}</option>
+            {(Object.keys(levels) as Level[]).map((key) => <option key={key} value={key}>{levels[key][language]}</option>)}
+          </select>
+        </div>
         <button type="button" className="button secondary" onClick={resetFilters} data-testid="button-reset-filters">{t.reset}</button>
         <p className="filter-note">{t.priceSourceNote}</p>
+        {(field || level) && <p className="filter-note programme-note" data-testid="text-programme-coverage">{language === 'ru'
+          ? `Направление и уровень проверяются по одной и той же программе из небольшой выборки: ${programmeCoverage.programmes} программ у ${programmeCoverage.universities} вузов, найденных на их сайтах. Остальные вузы скрыты не потому, что программ нет, — мы просто не знаем.`
+          : `Subject and level must match the same programme from a small sample: ${programmeCoverage.programmes} programmes at ${programmeCoverage.universities} universities, found on their websites. Other universities are hidden because we do not know, not because they lack programmes.`}</p>}
       </div>
       <div className="result-meta">
         <span data-testid="text-result-count">{formatNumber(filtered.length, language)} {t.countSuffix}</span>
@@ -538,6 +560,7 @@ function UniversityCard({ university }: { university: University }) {
         )}
         {insight && <span className={`data-badge ${insight.approximate ? 'approximate' : 'verified'}`}>{insight.approximate ? t.dataEstimate : t.dataVerified}</span>}
         <Link href={`/university/${university.id}`} className="detail-link" data-testid={`link-details-${university.id}`}>{t.viewDetails}</Link>
+        <UniversityActions university={university} />
       </div>
       <div className="uni-aside">
         <span>{t.officialWebsite}</span>
@@ -613,6 +636,7 @@ function UniversityPage() {
         {insight && <span className={`data-badge ${insight.approximate ? 'approximate' : 'verified'}`}>{insight.approximate ? t.dataEstimate : t.dataVerified}</span>}
         {insight?.checkedAt && <p className="coverage-note">{t.checkedAtLabel}: <time dateTime={insight.checkedAt}>{new Intl.DateTimeFormat(language === 'ru' ? 'ru-RU' : 'en-GB', { timeZone: 'UTC' }).format(new Date(`${insight.checkedAt}T00:00:00Z`))}</time></p>}
         {insight?.approximate && <p className="disclaimer">{t.countryEstimateNote}</p>}
+        <UniversityActions university={university} />
       </header>
       <div className="detail-columns">
         <div>
@@ -621,6 +645,7 @@ function UniversityPage() {
           {insight?.application && <section className="detail-section" data-testid="section-application"><h2>{t.applicationTitle}</h2><p>{insight.application[language]}</p></section>}
           {insight?.funding[language] && <section className="detail-section"><h2>{t.benefitsTitle}</h2><p>{insight.funding[language]}</p></section>}
           <section className="detail-section"><h2>{t.livingTitle}</h2><p>{getCountryLivingCost(university.countryCode, language) ?? t.livingUnavailableShort}</p>{getCountryLivingCost(university.countryCode, language) && <p className="muted-note">{t.livingExcludingHousingNote}</p>}</section>
+          <ProgrammeSection university={university} />
           {facts && <RegistryFacts facts={facts} language={language} />}
           {insight?.sources.length ? <section className="detail-section"><h2>{t.sourcesTitle}</h2><ul>{insight.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.label}</a></li>)}</ul></section> : null}
           <div className="disclaimer">{t.admissionDisclaimer}</div>
@@ -750,6 +775,11 @@ function Router() {
           <Route path="/countries" component={CountriesPage} />
           <Route path="/university/:id" component={UniversityPage} />
           <Route path="/tests" component={TestPage} />
+          <Route path="/compare" component={ComparePage} />
+          <Route path="/admissions" component={AdmissionsPage} />
+          <Route path="/profile" component={ProfilePage} />
+          <Route path="/sign-in">{() => <AuthPage mode="sign-in" />}</Route>
+          <Route path="/sign-up">{() => <AuthPage mode="sign-up" />}</Route>
           <Route component={NotFoundPage} />
         </Switch>
       </Shell>
@@ -763,24 +793,8 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 }
 
 function App() {
-  const [language, setLanguage] = useState<Language>(() => {
-    try {
-      return localStorage.getItem('university-guide-language') === 'en' ? 'en' : 'ru';
-    } catch {
-      return 'ru';
-    }
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('university-guide-language', language);
-    } catch {
-      // The language toggle still works if browser storage is unavailable.
-    }
-  }, [language]);
-
   return (
-    <LanguageContext.Provider value={{ language, setLanguage }}>
+    <LanguageProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
@@ -789,7 +803,7 @@ function App() {
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>
-    </LanguageContext.Provider>
+    </LanguageProvider>
   );
 }
 

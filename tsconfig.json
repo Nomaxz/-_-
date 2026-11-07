@@ -3,6 +3,7 @@
   "compileOnSave": false,
   "files": [],
   "references": [
+    { "path": "./lib/campass-data" },
     {
       "path": "./lib/db"
     },

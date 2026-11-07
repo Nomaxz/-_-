@@ -1,2 +1,3 @@
 - [University reputation sources](university-reputation-sources.md) — keep ranking and review citations separate; omit any metric that lacks a verified source.
 - [Partial university information](catalog-completeness.md) — show found facts without waiting for a complete profile; distinguish country estimates and unknown fields.
+- [Personal applicant tools](applicant-tools.md) — admissions preparation replaces the proposed calculator; keep personal progress separate from verified requirements.

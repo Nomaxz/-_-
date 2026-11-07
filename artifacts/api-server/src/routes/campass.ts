@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import cookieParser from 'cookie-parser';
+import { loadSession, sameOrigin } from '../middlewares/campass-session';
+import auth from './campass-auth';
+import favorites from './campass-favorites';
+import plans from './campass-plans';
+const router = Router();
+router.use(cookieParser(), sameOrigin, loadSession);
+router.use(auth, favorites, plans);
+export default router;

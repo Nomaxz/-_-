@@ -178,6 +178,9 @@ importers:
       '@workspace/api-zod':
         specifier: workspace:*
         version: link:../../lib/api-zod
+      '@workspace/campass-data':
+        specifier: workspace:*
+        version: link:../../lib/campass-data
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
@@ -527,6 +530,9 @@ importers:
       '@workspace/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@workspace/campass-data':
+        specifier: workspace:*
+        version: link:../../lib/campass-data
       class-variance-authority:
         specifier: 'catalog:'
         version: 0.7.1
@@ -620,6 +626,8 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 3.25.76
+
+  lib/campass-data: {}
 
   lib/db:
     dependencies:

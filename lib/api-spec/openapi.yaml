@@ -24,8 +24,245 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /campass/auth/me:
+    get:
+      operationId: getCampassMe
+      responses:
+        "200":
+          description: Current session
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CampassSession" }
+  /campass/auth/register:
+    post:
+      operationId: registerCampass
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CampassCredentials" }
+      responses:
+        "201":
+          description: Account created and signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CampassUser" }
+  /campass/auth/login:
+    post:
+      operationId: loginCampass
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CampassCredentials" }
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CampassUser" }
+  /campass/auth/logout:
+    post:
+      operationId: logoutCampass
+      responses:
+        "204": { description: Signed out }
+  /campass/favorites:
+    get:
+      operationId: getCampassFavorites
+      responses:
+        "200":
+          description: Own saved universities
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CampassFavorite" }
+    post:
+      operationId: saveCampassFavorite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CampassUniversityInput" }
+      responses:
+        "201":
+          description: Saved idempotently
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CampassFavorite" }
+  /campass/favorites/{universityId}:
+    delete:
+      operationId: removeCampassFavorite
+      parameters:
+        - { name: universityId, in: path, required: true, schema: { type: string } }
+      responses:
+        "204": { description: Removed }
+  /campass/plans:
+    get:
+      operationId: getCampassPlans
+      responses:
+        "200":
+          description: Own admission plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CampassPlan" }
+    post:
+      operationId: createCampassPlan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CampassPlanInput" }
+      responses:
+        "201":
+          description: Created or existing plan without progress reset
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CampassPlan" }
+  /campass/plans/{id}:
+    patch:
+      operationId: updateCampassPlan
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CampassPlanUpdate" }
+      responses:
+        "200":
+          description: Updated without changing checklist progress
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CampassPlan" }
+    delete:
+      operationId: deleteCampassPlan
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Deleted own plan and its checklist }
+  /campass/plans/{id}/steps:
+    post:
+      operationId: createCampassStep
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CampassStepInput" }
+      responses:
+        "201":
+          description: Added personal checklist item
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CampassStep" }
+  /campass/plans/{id}/steps/{stepId}:
+    patch:
+      operationId: updateCampassStep
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: stepId, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CampassStepUpdate" }
+      responses:
+        "200":
+          description: Updated checklist item
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CampassStep" }
+    delete:
+      operationId: deleteCampassStep
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: stepId, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Removed own checklist item }
 components:
   schemas:
+    CampassCredentials:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, minLength: 3, maxLength: 30 }
+        password: { type: string, minLength: 8, maxLength: 128 }
+    CampassUser:
+      type: object
+      required: [id, username, createdAt]
+      properties:
+        id: { type: string }
+        username: { type: string }
+        createdAt: { type: string }
+    CampassSession:
+      type: object
+      required: [user]
+      properties:
+        user:
+          oneOf:
+            - { $ref: "#/components/schemas/CampassUser" }
+            - { type: "null" }
+    CampassUniversityInput:
+      type: object
+      required: [universityId]
+      properties:
+        universityId: { type: string, minLength: 1, maxLength: 80 }
+    CampassFavorite:
+      type: object
+      required: [universityId, universityName, countryCode, createdAt]
+      properties:
+        universityId: { type: string }
+        universityName: { type: string }
+        countryCode: { type: string }
+        createdAt: { type: string }
+    CampassPlanInput:
+      type: object
+      required: [universityId]
+      properties:
+        universityId: { type: string, minLength: 1, maxLength: 80 }
+        programId: { type: ["string", "null"], maxLength: 100 }
+        programName: { type: string, maxLength: 200 }
+    CampassPlanUpdate:
+      type: object
+      properties:
+        programId: { type: ["string", "null"], maxLength: 100 }
+        programName: { type: string, maxLength: 200 }
+    CampassPlan:
+      type: object
+      required: [id, universityId, universityName, countryCode, programId, programName, createdAt, steps]
+      properties:
+        id: { type: string }
+        universityId: { type: string }
+        universityName: { type: string }
+        countryCode: { type: string }
+        programId: { type: ["string", "null"] }
+        programName: { type: string }
+        createdAt: { type: string }
+        steps:
+          type: array
+          items: { $ref: "#/components/schemas/CampassStep" }
+    CampassStep:
+      type: object
+      required: [id, label, done, templateKey]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        done: { type: boolean }
+        templateKey: { type: ["string", "null"] }
+    CampassStepInput:
+      type: object
+      required: [label]
+      properties:
+        label: { type: string, minLength: 1, maxLength: 500 }
+    CampassStepUpdate:
+      type: object
+      properties:
+        label: { type: string, minLength: 1, maxLength: 500 }
+        done: { type: boolean }
     HealthStatus:
       type: object
       properties:
