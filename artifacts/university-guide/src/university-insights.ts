@@ -84,6 +84,29 @@ export function getUniversityReputation(university: University) {
   return universityReputationByName[university.name] ?? null;
 }
 
+export type UniversitySort = 'default' | 'qs-rank' | 'review-rating';
+
+export function sortUniversities(items: readonly University[], sort: UniversitySort): University[] {
+  if (sort === 'default') {
+    return [...items].sort((a, b) => {
+      const aInsight = getUniversityInsight(a);
+      const bInsight = getUniversityInsight(b);
+      return Number(Boolean(bInsight && !bInsight.approximate)) - Number(Boolean(aInsight && !aInsight.approximate));
+    });
+  }
+
+  // Compare only the selected metric, with the same source requirement as the cards.
+  return items.flatMap((university) => {
+    const reputation = getUniversityReputation(university);
+    const value = sort === 'qs-rank' ? reputation?.qs2027Rank : reputation?.studentReviewRating;
+    const source = sort === 'qs-rank' ? reputation?.qsSource : reputation?.reviewSource;
+    return value !== undefined && Number.isFinite(value) && source
+      ? [{ university, value }]
+      : [];
+  }).sort((a, b) => sort === 'qs-rank' ? a.value - b.value : b.value - a.value)
+    .map(({ university }) => university);
+}
+
 const countryProfiles: Record<string, Insight> = {
   DE: {
     tuition: {

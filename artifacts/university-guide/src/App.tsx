@@ -40,7 +40,9 @@ import {
   getTuitionSummary,
   getUniversityInsight,
   priceOptions,
+  sortUniversities,
   type ExamFilter,
+  type UniversitySort,
 } from './university-insights';
 
 const queryClient = new QueryClient();
@@ -63,6 +65,12 @@ const messages = {
     searchPlaceholder: 'Университет, страна или область',
     countryLabel: 'Страна',
     allCountries: 'Все страны',
+    sortLabel: 'Сортировка',
+    sortDefault: 'По умолчанию',
+    sortQs: 'QS 2027: лучшие места',
+    sortReviews: 'Отзывы: высокая оценка',
+    sortQsNote: 'Показаны только вузы с подтверждённым местом QS 2027, от меньшего номера к большему.',
+    sortReviewsNote: 'Показаны только вузы с подтверждённой оценкой отзывов, от высокой к низкой. Оценка отзывов не является академическим рейтингом.',
     priceMinLabel: 'Стоимость от',
     priceMaxLabel: 'Стоимость до',
     pricePlaceholder: 'Введите сумму',
@@ -157,6 +165,12 @@ const messages = {
     searchPlaceholder: 'University, country, or region',
     countryLabel: 'Country',
     allCountries: 'All countries',
+    sortLabel: 'Sort by',
+    sortDefault: 'Default order',
+    sortQs: 'QS 2027: best rank first',
+    sortReviews: 'Reviews: highest rated first',
+    sortQsNote: 'Only universities with a sourced QS 2027 rank are shown, from lowest rank number to highest.',
+    sortReviewsNote: 'Only universities with a sourced review rating are shown, from highest to lowest. Student reviews are not an academic ranking.',
     priceMinLabel: 'Tuition from',
     priceMaxLabel: 'Tuition up to',
     pricePlaceholder: 'Enter an amount',
@@ -309,6 +323,7 @@ function CatalogPage() {
   const [examFilter, setExamFilter] = useState<ExamFilter>('');
   const [priceBand, setPriceBand] = useState('');
   const [dataAccuracy, setDataAccuracy] = useState<'' | 'verified' | 'approximate'>('');
+  const [sort, setSort] = useState<UniversitySort>('default');
   const [visibleLimit, setVisibleLimit] = useState(24);
   const hasPriceFilter = priceBand !== '';
   const detailedUniversityCount = useMemo(() => universities.filter((item) => {
@@ -317,11 +332,11 @@ function CatalogPage() {
   }).length, []);
 
   useEffect(() => setCountry(queryCountry), [queryCountry]);
-  useEffect(() => setVisibleLimit(24), [search, country, examFilter, priceBand, dataAccuracy]);
+  useEffect(() => setVisibleLimit(24), [search, country, examFilter, priceBand, dataAccuracy, sort]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLocaleLowerCase(language === 'ru' ? 'ru-RU' : 'en-US');
-    return universities.filter((university) => {
+    return sortUniversities(universities.filter((university) => {
       const searchText = [
         university.name,
         university.country,
@@ -337,12 +352,8 @@ function CatalogPage() {
         !dataAccuracy ||
         Boolean(insight && (dataAccuracy === 'approximate' ? insight.approximate : !insight.approximate));
       return matchesSearch && matchesCountry && matchesTuition && matchesExam && matchesAccuracy;
-    }).sort((a, b) => {
-      const aInsight = getUniversityInsight(a);
-      const bInsight = getUniversityInsight(b);
-      return Number(Boolean(bInsight && !bInsight.approximate)) - Number(Boolean(aInsight && !aInsight.approximate));
-    });
-  }, [search, country, examFilter, priceBand, dataAccuracy, hasPriceFilter, language]);
+    }), sort);
+  }, [search, country, examFilter, priceBand, dataAccuracy, hasPriceFilter, language, sort]);
 
   const resetFilters = () => {
     setSearch('');
@@ -350,6 +361,7 @@ function CatalogPage() {
     setExamFilter('');
     setPriceBand('');
     setDataAccuracy('');
+    setSort('default');
   };
 
   return (
@@ -414,7 +426,16 @@ function CatalogPage() {
       <div className="result-meta">
         <span data-testid="text-result-count">{formatNumber(filtered.length, language)} {t.countSuffix}</span>
         <span>{t.sourceLabel}</span>
+        <div className="field catalog-sort">
+          <label htmlFor="university-sort">{t.sortLabel}</label>
+          <select id="university-sort" className="control" value={sort} onChange={(event) => setSort(event.target.value as UniversitySort)} data-testid="select-university-sort" aria-describedby={sort !== 'default' ? 'comparison-note' : undefined}>
+            <option value="default">{t.sortDefault}</option>
+            <option value="qs-rank">{t.sortQs}</option>
+            <option value="review-rating">{t.sortReviews}</option>
+          </select>
+        </div>
       </div>
+      {sort !== 'default' && <p id="comparison-note" className="coverage-note" data-testid="text-comparison-note">{sort === 'qs-rank' ? t.sortQsNote : t.sortReviewsNote}</p>}
       <p className="coverage-note" data-testid="text-detail-coverage">{t.detailCoverageLabel}: {formatNumber(detailedUniversityCount, language)}. {t.admissionDisclaimer}</p>
       {filtered.length ? (
         <>
