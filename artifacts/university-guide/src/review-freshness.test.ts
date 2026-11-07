@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { ReviewRating } from './components/review-rating';
 import { isReviewRatingStale, REVIEW_FRESHNESS_DAYS } from './university-insights';
 
 const checkedAt = '2026-11-07';
@@ -28,3 +31,39 @@ test('freshness uses UTC calendar dates across timezone and year boundaries', ()
   assert.equal(isReviewRatingStale(checkedAt, new Date('2027-05-06T23:59:59Z')), false);
   assert.equal(isReviewRatingStale(checkedAt, new Date('2027-05-07T04:00:00+04:00')), true);
 });
+
+const warnings = {
+  ru: 'Оценка может быть устаревшей: не проверялась более 180 дней',
+  en: 'Rating may be outdated: not checked for over 180 days',
+};
+
+for (const language of ['ru', 'en'] as const) {
+  for (const days of [180, 181]) {
+    test(`${language}: day ${days} renders ${days === 180 ? 'no warning' : 'a localized warning'} without hiding the rating or source`, (t) => {
+      t.mock.timers.enable({ apis: ['Date'], now: afterDays(days) });
+      const html = renderToStaticMarkup(createElement(ReviewRating, {
+        language,
+        reputation: {
+          studentReviewRating: 4.3,
+          reviewCount: 59,
+          reviewCheckedAt: checkedAt,
+          reviewSource: { label: 'Review source', url: 'https://example.com/reviews' },
+        },
+      }));
+
+      assert.match(html, /4\.3\/5/);
+      assert.match(html, /<a href="https:\/\/example.com\/reviews" target="_blank" rel="noreferrer">Review source<\/a>/);
+      if (days === 180) {
+        assert.doesNotMatch(html, /review-stale-warning/);
+        for (const warning of Object.values(warnings)) {
+          assert.ok(!html.includes(warning));
+        }
+      } else {
+        assert.ok(html.includes(
+          `<span class="review-stale-warning"><span aria-hidden="true">⚠ </span>${warnings[language]}</span>`,
+        ));
+        assert.ok(!html.includes(warnings[language === 'ru' ? 'en' : 'ru']));
+      }
+    });
+  }
+}
