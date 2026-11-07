@@ -304,6 +304,7 @@
 .card-reputation strong { color:#294b45; }
 .card-reputation a { color:#315b54; text-decoration:underline; text-underline-offset:2px; }
 .card-reputation small { color:#7a817b; font-size:11px; }
+.review-stale-warning { display:block; width:fit-content; margin-top:6px; padding:4px 8px; border:1px solid #d4a245; border-radius:6px; background:#fff4d6; color:#754400; font-size:12px; font-weight:600; line-height:1.5; }
 .rating-star { color:#c58b34; margin-left:2px; font-size:14px; }
 .card-highlight-item small,.muted-note,.country-living span { color:#7a817b; font-size:10px; line-height:1.35; }
 .uni-aside { text-align:right; min-width:145px; color:#4a625d; font-size:13px; }

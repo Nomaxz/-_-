@@ -15,6 +15,18 @@ export type UniversityReputation = {
 
 const REVIEW_DATA_CHECKED_AT = '2026-11-07';
 
+export const REVIEW_FRESHNESS_DAYS = 180;
+
+/** Compare calendar dates in UTC, matching the date-only verification metadata. */
+export function isReviewRatingStale(checkedAt: string | undefined, now = new Date()): boolean {
+  if (!checkedAt || !/^\d{4}-\d{2}-\d{2}$/.test(checkedAt)) return false;
+  const checked = new Date(`${checkedAt}T00:00:00Z`);
+  if (!Number.isFinite(checked.getTime()) || !Number.isFinite(now.getTime())) return false;
+  if (checked.toISOString().slice(0, 10) !== checkedAt) return false;
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return (today - checked.getTime()) / 86_400_000 > REVIEW_FRESHNESS_DAYS;
+}
+
 function reputationFromSource(
   url: string,
   qs2027Rank?: number,

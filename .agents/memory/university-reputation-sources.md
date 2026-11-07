@@ -8,3 +8,9 @@ Each published university rank or student review score must have a named, clicka
 **Why:** The university catalog contains alternate and historical names, while public profiles can expose reviews without the requested ranking or vice versa.
 
 **How to apply:** Match a source to the exact institution before adding it, keep citation metadata with each metric, and only render metrics that have both a value and a source.
+
+The user chose 180 days as the review-rating freshness period. Warn only after more than 180 days since verification, not on day 180; retain the score and citation.
+
+**Why:** The user explicitly approved this period for helping visitors identify potentially outdated review scores.
+
+**How to apply:** Preserve this product threshold when changing review freshness behavior, with warnings available in Russian and English.

@@ -45,6 +45,8 @@ import {
   sortUniversities,
   type ExamFilter,
   type UniversitySort,
+  isReviewRatingStale,
+  REVIEW_FRESHNESS_DAYS,
 } from './university-insights';
 
 const queryClient = new QueryClient();
@@ -82,8 +84,9 @@ const messages = {
     anyPrice: 'Любой бюджет',
     dataAccuracyLabel: 'Достоверность данных',
     allDataAccuracy: 'Все сведения',
-    verifiedOnly: 'Проверенные',
-    approximateOnly: 'Неполные / примерные',
+    verifiedOnly: 'Проверено по вузу',
+    approximateOnly: 'Неточно',
+    unlabeledOnly: 'Без метки',
     dataEstimate: 'Неполные или приблизительные сведения',
     dataVerified: 'Проверено по вузу',
     countryEstimateNote: 'Карточка заполнена частично. Общие ориентиры по стране не являются подтверждёнными условиями конкретного вуза. Разделы без найденных сведений не заполняются догадками.',
@@ -101,6 +104,7 @@ const messages = {
     studentReviewsLabel: 'Оценка отзывов',
     reviewCountSuffix: 'отзывов',
     reviewCheckedLabel: 'проверено',
+    reviewStaleWarning: `Оценка может быть устаревшей: не проверялась более ${REVIEW_FRESHNESS_DAYS} дней`,
     livingTitle: 'Проживание без жилья',
     livingExcludingHousingNote: 'Примерная сумма на месяц, без оплаты жилья; обучение считается отдельно.',
     sourcesTitle: 'Официальные источники',
@@ -187,6 +191,7 @@ const messages = {
     allDataAccuracy: 'All information',
     verifiedOnly: 'Verified',
     approximateOnly: 'Partial and approximate',
+    unlabeledOnly: 'No label',
     dataEstimate: 'Partial or approximate information',
     dataVerified: 'University source',
     countryEstimateNote: 'This profile is partial. Country guides are not verified conditions for this institution. Sections without available information are not filled with guesses.',
@@ -204,6 +209,7 @@ const messages = {
     studentReviewsLabel: 'Student review rating',
     reviewCountSuffix: 'reviews',
     reviewCheckedLabel: 'checked',
+    reviewStaleWarning: `Rating may be outdated: not checked for over ${REVIEW_FRESHNESS_DAYS} days`,
     livingTitle: 'Living expenses excluding housing',
     livingExcludingHousingNote: 'Approximate monthly expenses, excluding housing; tuition is separate.',
     sourcesTitle: 'Official sources',
@@ -331,7 +337,7 @@ function CatalogPage() {
   const [country, setCountry] = useState(queryCountry);
   const [examFilter, setExamFilter] = useState<ExamFilter>('');
   const [priceBand, setPriceBand] = useState('');
-  const [dataAccuracy, setDataAccuracy] = useState<'' | 'verified' | 'approximate'>('');
+  const [dataAccuracy, setDataAccuracy] = useState<'' | 'verified' | 'approximate' | 'unlabeled'>('');
   const [sort, setSort] = useState<UniversitySort>('default');
   const [visibleLimit, setVisibleLimit] = useState(24);
   const hasPriceFilter = priceBand !== '';
@@ -362,7 +368,9 @@ function CatalogPage() {
       const matchesExam = !examFilter || Boolean(insight?.exams.includes(examFilter));
       const matchesAccuracy =
         !dataAccuracy ||
-        Boolean(insight && (dataAccuracy === 'approximate' ? insight.approximate : !insight.approximate));
+        (dataAccuracy === 'unlabeled'
+          ? !insight
+          : Boolean(insight && (dataAccuracy === 'approximate' ? insight.approximate : !insight.approximate)));
       return matchesSearch && matchesCountry && matchesTuition && matchesExam && matchesAccuracy;
     }), sort);
   }, [search, country, examFilter, priceBand, dataAccuracy, hasPriceFilter, language, sort]);
@@ -430,6 +438,7 @@ function CatalogPage() {
             <option value="">{t.allDataAccuracy}</option>
             <option value="verified">{t.verifiedOnly}</option>
             <option value="approximate">{t.approximateOnly}</option>
+            <option value="unlabeled">{t.unlabeledOnly}</option>
           </select>
         </div>
         <button type="button" className="button secondary" onClick={resetFilters} data-testid="button-reset-filters">{t.reset}</button>
@@ -517,6 +526,11 @@ function UniversityCard({ university }: { university: University }) {
                 <a href={reputation.reviewSource.url} target="_blank" rel="noreferrer">{reputation.reviewSource.label}</a>
                 {reputation.reviewCheckedAt && (
                   <small> · {t.reviewCheckedLabel} {formatDate(reputation.reviewCheckedAt, language)}</small>
+                )}
+                {isReviewRatingStale(reputation.reviewCheckedAt) && (
+                  <span className="review-stale-warning">
+                    <span aria-hidden="true">⚠ </span>{t.reviewStaleWarning}
+                  </span>
                 )}
               </span>
             )}
