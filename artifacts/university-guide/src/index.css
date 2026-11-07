@@ -287,7 +287,7 @@
 .button:hover { background:#244740; transform:translateY(-1px); }
 .button.secondary { background:transparent; color:#315b54; }
 .button.secondary:hover { background:#e9e8dc; }
-.filter-panel > .button { align-self:end; white-space:nowrap; }
+.filter-panel > .button { grid-column:1/-1; justify-self:start; align-self:end; white-space:nowrap; }
 .result-meta { display:flex; justify-content:space-between; align-items:center; margin:20px 0 12px; color:#697574; font-size:13px; }
 .catalog-sort { display:flex; align-items:center; gap:10px; }
 .catalog-sort label { white-space:nowrap; }
